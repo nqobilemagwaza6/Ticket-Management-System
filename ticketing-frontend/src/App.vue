@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <h1>Ticketing Management System uytr</h1>
     <ConnectButton />
   </div>
 </template>
