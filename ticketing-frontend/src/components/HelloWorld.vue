@@ -21,7 +21,7 @@ export default {
         })
         .catch(error => {
           console.error(error)
-          this.message = 'Error connecting to backend'
+          this.message = 'Cannot connecting to backend'
         })
     }
   }
