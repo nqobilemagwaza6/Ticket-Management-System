@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button @click="fetchMessage">Connect to Backend</button>
+    <button @click="fetchMessage">Sign in to Backend</button>
     <p>{{ message }}</p>
   </div>
 </template>
