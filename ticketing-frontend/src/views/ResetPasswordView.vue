@@ -4,6 +4,10 @@
       <h4 class="fw-bold text-center mb-2">Change Your Password</h4>
       <p class="text-muted text-center small mb-4">Enter a new password below to change your password.</p>
 
+      <div v-if="error" class="alert alert-danger text-center">
+        {{ error }}
+      </div>
+
       <form @submit.prevent="handleReset">
         <div class="mb-3 position-relative">
           <label class="form-label small fw-bold">New password</label>
@@ -33,7 +37,10 @@
           </ul>
         </div>
 
-        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" :disabled="!isFormValid">SAVE</button>
+        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" :disabled="!isFormValid || submitting">
+          <span v-if="!submitting">SAVE</span>
+          <span v-else class="spinner-border spinner-border-sm"></span>
+        </button>
       </form>
     </div>
   </div>
@@ -41,9 +48,18 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+
+const router = useRouter();
+const route = useRoute();
 
 const newPassword = ref('');
 const confirmPassword = ref('');
+const error = ref('');
+const submitting = ref(false);
+
+// Route params: uid and token from /reset-password/:uid/:token
+const { uid, token } = route.params;
 
 const hasMinLength = computed(() => newPassword.value.length >= 8);
 const hasLower = computed(() => /[a-z]/.test(newPassword.value));
@@ -60,7 +76,36 @@ const isFormValid = computed(() => {
   return hasMinLength.value && hasRequirements.value && newPassword.value === confirmPassword.value;
 });
 
-const handleReset = () => { /* Logic to call your API */ };
+const handleReset = async () => {
+  error.value = '';
+  submitting.value = true;
+
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/reset-password/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        uid: uid,
+        token: token,
+        new_password: newPassword.value
+      })
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.detail || 'Failed to reset password');
+    }
+
+    // Since PasswordChangeView is deleted, redirect to Login instead
+    // We can pass a query parameter to show a success message on the login page
+    router.push({ name: 'Login', query: { resetSuccess: 'true' } });
+    
+  } catch (err) {
+    error.value = err.message || 'Something went wrong.';
+  } finally {
+    submitting.value = false;
+  }
+};
 </script>
 
 <style scoped>

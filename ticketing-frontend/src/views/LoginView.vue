@@ -32,14 +32,16 @@
       </div>
 
       <div class="text-end mb-3">
-        <router-link to="/forgot-password" class="small text-decoration-none">
+        <router-link to="/forgot-password" class="small text-decoration-none small">
           Forgot password?
         </router-link>
       </div>
 
-      <button type="submit" class="btn btn-primary w-100 fw-bold">
-        Login
-      </button>
+     <button type="submit" class="btn btn-primary w-100 fw-bold" :disabled="submitting">
+  <span v-if="!submitting">Login</span>
+  <span v-else class="spinner-border spinner-border-sm"></span>
+</button>
+
 
     </form>
 
@@ -57,13 +59,53 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import AuthLayout from '@/components/AuthLayout.vue'
+
+const router = useRouter()
 
 const email = ref('')
 const password = ref('')
 const error = ref('')
+const submitting = ref(false)
 
-function loginUser() {
-  // Your existing login logic here
+async function loginUser() {
+  error.value = ''
+  submitting.value = true
+
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/login/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include', //  for session cookies
+      body: JSON.stringify({ email: email.value.trim(), password: password.value })
+    })
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}))
+      throw new Error(data.message || 'Invalid email or password.')
+    }
+
+    const data = await response.json()
+
+    // Saves user info for UI purposes only
+    localStorage.setItem('user', JSON.stringify(data.user))
+    localStorage.setItem('isAuthenticated', 'true')
+
+    // Redirects based on role
+    if (data.user.role === 'admin') {
+      router.push('/dashboard')
+    } else {
+      router.push('/employee-dashboard')
+    }
+
+  } catch (err) {
+    error.value = err.message || 'Login failed. Please try again.'
+  } finally {
+    submitting.value = false
+  }
 }
+
 </script>
+
+

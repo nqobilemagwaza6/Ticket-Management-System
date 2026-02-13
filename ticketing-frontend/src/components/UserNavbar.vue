@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">TMS</a>
+      <router-link class="navbar-brand" to="/employee-dashboard">TMS</router-link>
       <button
         class="navbar-toggler"
         type="button"
@@ -13,9 +13,9 @@
       >
         <span class="navbar-toggler-icon"></span>
       </button>
+
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <!-- User Dashboard -->
           <li class="nav-item">
             <router-link class="nav-link" to="/employee-dashboard">Dashboard</router-link>
           </li>
@@ -36,15 +36,8 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const logout = async () => {
-  try {
-    await fetch('http://127.0.0.1:8000/api/logout/', {
-      method: 'POST',
-      credentials: 'include'
-    })
-  } catch (err) {
-    console.error('Logout error', err)
-  }
+function logout() {
+  localStorage.removeItem('authToken')
   localStorage.removeItem('user')
   localStorage.removeItem('isAuthenticated')
   router.push('/login')
@@ -52,8 +45,5 @@ const logout = async () => {
 </script>
 
 <style scoped>
-.navbar-brand {
-  font-weight: 700;
-  font-size: 1.4rem;
-}
+.navbar-brand { font-weight: 700; font-size: 1.4rem; }
 </style>
