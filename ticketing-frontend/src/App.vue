@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import ConnectButton from './components/HelloWorld.vue'
+import ConnectButton from './views/AuthView.vue'
 
 export default {
   components: {

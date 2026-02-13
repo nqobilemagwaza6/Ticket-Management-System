@@ -1,89 +1,113 @@
 <template>
-  <div class="container d-flex justify-content-center align-items-center vh-100">
-    <div class="card shadow p-4" style="width: 400px;">
-      <h3 class="text-center mb-4">Register</h3>
+  <AuthLayout>
 
-      <div v-if="error" class="alert alert-danger">
-        {{ error }}
-      </div>
+    <h5 class="fw-bold text-center mb-3">Create Account</h5>
 
-      <div v-if="success" class="alert alert-success">
-        {{ success }}
-      </div>
-
-      <form @submit.prevent="registerUser">
-        <div class="mb-3">
-          <label class="form-label">Full Name</label>
-          <input type="text" v-model="fullName" class="form-control" required />
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Email</label>
-          <input type="email" v-model="email" class="form-control" required />
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Password</label>
-          <input type="password" v-model="password" class="form-control" required />
-        </div>
-
-        <button type="submit" class="btn btn-primary w-100">
-          Register
-        </button>
-      </form>
-
-      <div class="text-center mt-3">
-        <router-link to="/login">Already have an account?</router-link>
-      </div>
+    <div v-if="error" class="alert alert-danger text-center">
+      {{ error }}
     </div>
-  </div>
+
+    <div v-if="success" class="alert alert-success text-center">
+      {{ success }}
+    </div>
+
+    <form @submit.prevent="registerUser">
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Full Name</label>
+        <input
+          type="text"
+          class="form-control"
+          v-model="fullName"
+          required
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Email</label>
+        <input
+          type="email"
+          class="form-control"
+          v-model="email"
+          required
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          v-model="password"
+          required
+        />
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Confirm Password</label>
+        <input
+          type="password"
+          class="form-control"
+          v-model="confirmPassword"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 fw-bold">
+        Register
+      </button>
+
+    </form>
+
+    <div class="text-center mt-4">
+      <small class="text-muted">
+        Already have an account?
+        <router-link to="/login" class="fw-bold text-decoration-none">
+          Login
+        </router-link>
+      </small>
+    </div>
+
+  </AuthLayout>
 </template>
 
-<script>
-export default {
-  name: "RegisterView",
+<script setup>
+import { ref } from 'vue'
+import AuthLayout from '@/components/AuthLayout.vue'
 
-  data() {
-    return {
-      fullName: "",
-      email: "",
-      password: "",
-      error: "",
-      success: ""
-    }
-  },
+const fullName = ref('')
+const email = ref('')
+const password = ref('')
+const confirmPassword = ref('')
+const error = ref('')
+const success = ref('')
 
-  methods: {
-    registerUser() {
-      fetch("http://127.0.0.1:8000/api/register/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          full_name: this.fullName,
-          email: this.email,
-          password: this.password
-        })
-      })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error("Registration failed")
-          }
-          return response.json()
-        })
-        .then(data => {
-          console.log("Registration success:", data)
-          this.success = "Account created successfully. You can now log in."
-          this.error = ""
-        })
-        .catch(error => {
-          console.error(error)
-          this.error = "Registration failed. Try again."
-          this.success = ""
-        })
-    }
+function registerUser() {
+  if (password.value !== confirmPassword.value) {
+    error.value = 'Passwords do not match.'
+    return
   }
+
+  fetch('http://127.0.0.1:8000/api/register/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      full_name: fullName.value,
+      email: email.value,
+      password: password.value
+    })
+  })
+    .then(res => {
+      if (!res.ok) throw new Error()
+      return res.json()
+    })
+    .then(() => {
+      success.value = 'Account created successfully. You can now log in.'
+      error.value = ''
+    })
+    .catch(() => {
+      error.value = 'Registration failed. Please try again.'
+      success.value = ''
+    })
 }
 </script>

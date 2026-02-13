@@ -1,81 +1,69 @@
 <template>
-  <div class="container d-flex justify-content-center align-items-center vh-100">
-    <div class="card shadow p-4" style="width: 400px;">
-      <h3 class="text-center mb-4">Login</h3>
+  <AuthLayout>
 
-      <div v-if="error" class="alert alert-danger">
-        {{ error }}
-      </div>
+    <h5 class="fw-bold text-center mb-3">Login</h5>
 
-      <form @submit.prevent="loginUser">
-        <div class="mb-3">
-          <label class="form-label">Email</label>
-          <input type="email" v-model="email" class="form-control" required />
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Password</label>
-          <input type="password" v-model="password" class="form-control" required />
-        </div>
-
-        <button type="submit" class="btn btn-primary w-100">
-          Login
-        </button>
-      </form>
-
-      <div class="text-center mt-3">
-        <router-link to="/register">Create an account</router-link>
-      </div>
+    <div v-if="error" class="alert alert-danger text-center">
+      {{ error }}
     </div>
-  </div>
+
+    <form @submit.prevent="loginUser">
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Email</label>
+        <input
+          type="email"
+          class="form-control"
+          v-model="email"
+          placeholder="you@example.com"
+          required
+        />
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label fw-semibold">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          v-model="password"
+          placeholder="••••••••"
+          required
+        />
+      </div>
+
+      <div class="text-end mb-3">
+        <router-link to="/forgot-password" class="small text-decoration-none">
+          Forgot password?
+        </router-link>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 fw-bold">
+        Login
+      </button>
+
+    </form>
+
+    <div class="text-center mt-4">
+      <small class="text-muted">
+        Don’t have an account?
+        <router-link to="/register" class="fw-bold text-decoration-none">
+          Register
+        </router-link>
+      </small>
+    </div>
+
+  </AuthLayout>
 </template>
 
-<script>
-export default {
-  name: "LoginView",
+<script setup>
+import { ref } from 'vue'
+import AuthLayout from '@/components/AuthLayout.vue'
 
-  data() {
-    return {
-      email: "",
-      password: "",
-      error: ""
-    }
-  },
+const email = ref('')
+const password = ref('')
+const error = ref('')
 
-  methods: {
-    loginUser() {
-      fetch("http://127.0.0.1:8000/api/login/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: "include", // VERY IMPORTANT for session auth
-        body: JSON.stringify({
-          email: this.email,
-          password: this.password
-        })
-      })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error("Invalid credentials")
-          }
-          return response.json()
-        })
-        .then(data => {
-          console.log("Login success:", data)
-
-          // Example: redirect based on role
-          if (data.role === "ADMIN") {
-            this.$router.push("/admin")
-          } else {
-            this.$router.push("/dashboard")
-          }
-        })
-        .catch(error => {
-          console.error(error)
-          this.error = "Login failed. Please check your credentials."
-        })
-    }
-  }
+function loginUser() {
+  // Your existing login logic here
 }
 </script>

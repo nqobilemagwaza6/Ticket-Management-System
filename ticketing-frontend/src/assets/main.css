@@ -1,0 +1,65 @@
+/* ===============================
+   GLOBAL STYLES
+=================================*/
+
+body {
+  font-family: Inter, Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f4f6f9;
+}
+
+/* ===============================
+   AUTH LAYOUT
+=================================*/
+
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fb, #eef2f7);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 45px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: 0.2s ease-in-out;
+}
+
+.auth-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Logo */
+.auth-logo {
+  width: 90px;
+}
+
+/* Form controls */
+.form-control {
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+/* Buttons */
+.btn-primary {
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 10px;
+}
+
+/* Alerts */
+.alert {
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* Responsive tweak */
+@media (max-width: 768px) {
+  .auth-card {
+    padding: 30px 20px;
+  }
+}
