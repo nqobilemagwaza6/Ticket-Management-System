@@ -5,6 +5,9 @@ import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import ForgotPasswordView from '@/views/ForgotPasswordView.vue'
 import ResetPasswordView from '@/views/ResetPasswordView.vue'
+import AdminDashboard from '@/views/Admin/AdminDashboard.vue'
+import UserModal from '@/components/UserModal.vue'
+import TicketModal from '@/components/TicketModal.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -12,7 +15,9 @@ const routes = [
   { path: '/register', name: 'Register', component: RegisterView },
   { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPasswordView },
   { path: '/reset-password/:uid/:token', name: 'ResetPassword', component: ResetPasswordView },
-
+  { path: '/admin-dashboard', name: 'admin-dashboard', component: AdminDashboard  },
+  { path: '/user-modal', name: 'user-modal', component: UserModal  },
+  { path: '/ticket-modal', name: 'ticket-modal', component: TicketModal  },
   {
     path: '/employee-dashboard',
     name: 'EmployeeDashboard',
