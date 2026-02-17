@@ -46,10 +46,11 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 style="color:#2E2E2E;">User Management</h4>
           <button class="btn" style="background-color:#1ABC9C; color:#F5F5F5; border:none;"
-                  @click="showUserModal = true">
-            Add Support Agent
+                  @click="openAddUserModal">
+            Add User
           </button>
         </div>
+
         <div class="table-responsive shadow-sm rounded">
           <table class="table mb-0" style="background-color:#2E2E2E; color:#F5F5F5;">
             <thead style="background-color:#1ABC9C; color:#F5F5F5;">
@@ -74,7 +75,7 @@
                   </span>
                 </td>
                 <td>
-                  <button class="btn btn-outline-light btn-sm me-1" @click="editUser(index)">Edit</button>
+                  <button class="btn btn-outline-light btn-sm me-1" @click="openEditUserModal(index)">Edit</button>
                   <button class="btn btn-outline-danger btn-sm" @click="deleteUser(index)">Delete</button>
                 </td>
               </tr>
@@ -120,13 +121,21 @@
     </div>
 
     <!-- Modals -->
-    <UserModal
-      v-if="showUserModal"
-      :user="currentUser"
-      :isEdit="editUserIndex !== null"
-      @close="closeUserModal"
-      @save="saveUser"
+    <UserModal 
+      v-if="showAddUserModal" 
+      @close="showAddUserModal=false" 
+      @save="saveNewUser" 
     />
+
+    <UserModal 
+      v-if="showEditUserModal" 
+      :user="userToEdit" 
+      :isEdit="true"
+      @close="showEditUserModal=false" 
+      @save="saveEditedUser" 
+    />
+
+    <!-- Ticket modal placeholder (optional) -->
     <TicketModal
       v-if="showTicketModal"
       :ticket="currentTicket"
@@ -134,11 +143,12 @@
       @close="closeTicketModal"
       @save="saveTicketAction"
     />
+
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive,onMounted } from 'vue'
 import UserModal from '@/components/UserModal.vue'
 import TicketModal from '@/components/TicketModal.vue'
 
@@ -163,11 +173,49 @@ const statsCards = [
 ]
 
 // Users
-const users = reactive([
-  { name: 'Alice Admin', email: 'alice@admin.com', role: 'Admin', active: true },
-  { name: 'Bob Support', email: 'bob@support.com', role: 'Support', active: true },
-  { name: 'Charlie User', email: 'charlie@user.com', role: 'User', active: true },
-])
+const users = ref([])
+
+onMounted(() => {
+  fetchUsers()
+})
+
+const fetchUsers = async () => {
+  try {
+    // Grab CSRF token from cookie (needed for session-protected endpoints)
+    const csrfToken = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('csrftoken='))
+      ?.split('=')[1]
+
+    const response = await fetch('http://localhost:8000/api/users_list/', {
+      method: 'GET',
+      credentials: 'include', // VERY IMPORTANT for session auth
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken
+      }
+    })
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}))
+      throw new Error(data.error || 'Failed to fetch users')
+    }
+
+    const data = await response.json()
+
+    // Map backend fields to frontend fields
+    users.value = data.map(user => ({
+      id: user.id,
+      name: user.full_name || user.first_name || user.name,
+      email: user.email,
+      role: user.role,
+      active: user.is_active
+    }))
+
+  } catch (error) {
+    console.error('Error fetching users:', error)
+  }
+}
+
 
 // Tickets
 const tickets = reactive([
@@ -175,23 +223,55 @@ const tickets = reactive([
   { title: 'Printer not working', priority: 'Medium', status: 'In Progress', category: 'Hardware', agent: 'Bob Support' },
 ])
 
-// User Management
-const showUserModal = ref(false)
-const currentUser = reactive({ name: '', email: '', role: 'Support', active: true })
+// ---------- User Modals ----------
+const showAddUserModal = ref(false)
+const showEditUserModal = ref(false)
+const userToEdit = reactive({ name:'', email:'', role:'User', active:true })
 const editUserIndex = ref(null)
-const editUser = (index) => { editUserIndex.value = index; Object.assign(currentUser, users[index]); showUserModal.value = true }
-const deleteUser = (index) => users.splice(index, 1)
-const closeUserModal = () => { showUserModal.value = false; editUserIndex.value=null; Object.assign(currentUser, { name:'', email:'', role:'Support', active:true }) }
-const saveUser = (user) => { if(editUserIndex.value!==null) users[editUserIndex.value]={...user}; else users.push({...user}); closeUserModal() }
 
-// Ticket Management
+const openAddUserModal = () => showAddUserModal.value = true
+
+const saveNewUser = (user) => {
+  users.push({ ...user, active:true })
+  showAddUserModal.value = false
+}
+
+const openEditUserModal = (index) => {
+  editUserIndex.value = index
+  Object.assign(userToEdit, users[index])
+  showEditUserModal.value = true
+}
+
+const saveEditedUser = (updatedUser) => {
+  if(editUserIndex.value !== null){
+    users[editUserIndex.value] = { ...updatedUser }
+  }
+  showEditUserModal.value = false
+}
+
+const deleteUser = (index) => users.splice(index,1)
+
+// ---------- Ticket Modals ----------
 const showTicketModal = ref(false)
 const currentTicket = reactive({})
 const isAssignAction = ref(true)
-const assignTicket = (index) => { isAssignAction.value=true; Object.assign(currentTicket, tickets[index]); showTicketModal.value=true }
-const categorizeTicket = (index) => { isAssignAction.value=false; Object.assign(currentTicket, tickets[index]); showTicketModal.value=true }
-const closeTicketModal = () => showTicketModal.value=false
-const saveTicketAction = (updatedTicket) => { const index=tickets.findIndex(t=>t===currentTicket); tickets[index]={...updatedTicket}; closeTicketModal() }
+
+const assignTicket = (index) => {
+  Object.assign(currentTicket, tickets[index])
+  isAssignAction.value = true
+  showTicketModal.value = true
+}
+const categorizeTicket = (index) => {
+  Object.assign(currentTicket, tickets[index])
+  isAssignAction.value = false
+  showTicketModal.value = true
+}
+const closeTicketModal = () => showTicketModal.value = false
+const saveTicketAction = (updatedTicket) => {
+  const index = tickets.findIndex(t => t === currentTicket)
+  if(index !== -1) tickets[index] = {...updatedTicket}
+  closeTicketModal()
+}
 </script>
 
 <style scoped>
@@ -202,47 +282,25 @@ const saveTicketAction = (updatedTicket) => { const index=tickets.findIndex(t=>t
   min-height: 100vh;
   color: #F5F5F5;
 }
-.sidebar.collapsed {
-  width: 70px;
-}
-.sidebar .nav-link {
-  color: #F5F5F5;
-  margin-bottom: 6px;
-  border-radius: 8px;
-  transition: all 0.2s;
-}
-.sidebar .nav-link.active,
-.sidebar .nav-link:hover {
-  background-color: #1ABC9C;
-  color: #FFF;
-}
+.sidebar.collapsed { width:70px; }
+.sidebar .nav-link { color:#F5F5F5; margin-bottom:6px; border-radius:8px; transition:0.2s; }
+.sidebar .nav-link.active, .sidebar .nav-link:hover { background-color:#1ABC9C; color:#FFF; }
 
 /* Stats Cards */
 .stats-card {
   background: linear-gradient(135deg, #F9E79F, #FAD02E);
-  border-radius: 12px;
-  color: #2E2E2E;
-  padding: 1rem;
+  border-radius:12px;
+  color:#2E2E2E;
+  padding:1rem;
 }
 
 /* Table Hover */
-.table-row:hover {
-  background-color: #3B3B3B;
-  transition: 0.2s;
-}
+.table-row:hover { background-color:#3B3B3B; transition:0.2s; }
 
 /* Buttons */
-.btn-outline-light {
-  border-color: #1ABC9C;
-  color: #1ABC9C;
-}
-.btn-outline-light:hover {
-  background-color: #1ABC9C;
-  color: #F5F5F5;
-}
-.btn-outline-danger:hover { background-color:#FF6B35;color:#F5F5F5;border-color:#FF6B35 }
-.btn-outline-warning:hover { background-color:#FF6B35;color:#F5F5F5;border-color:#FF6B35 }
-.btn-outline-info:hover { background-color:#F9E79F;color:#2E2E2E;border-color:#F9E79F }
+.btn-outline-light { border-color:#1ABC9C; color:#1ABC9C; }
+.btn-outline-light:hover { background-color:#1ABC9C; color:#F5F5F5; }
+.btn-outline-danger:hover { background-color:#FF6B35;color:#F5F5F5;border-color:#FF6B35; }
+.btn-outline-warning:hover { background-color:#FF6B35;color:#F5F5F5;border-color:#FF6B35; }
+.btn-outline-info:hover { background-color:#F9E79F;color:#2E2E2E;border-color:#F9E79F; }
 </style>
-
-

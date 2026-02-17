@@ -94,9 +94,11 @@ async function loginUser() {
 
     // Redirects based on role
     if (data.user.role === 'admin') {
-      router.push('/dashboard')
+      router.push('/admin-dashboard')            // Admin dashboard
+    } else if (data.user.role === 'support') {
+      router.push('/support-dashboard')    // Support agent dashboard
     } else {
-      router.push('/employee-dashboard')
+      router.push('/employee-dashboard')   // Regular user dashboard
     }
 
   } catch (err) {
