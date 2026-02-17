@@ -5,6 +5,7 @@ import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import ForgotPasswordView from '@/views/ForgotPasswordView.vue'
 import ResetPasswordView from '@/views/ResetPasswordView.vue'
+import SupportDashboard from '@/views/Support/SupportDashBoard.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -12,7 +13,8 @@ const routes = [
   { path: '/register', name: 'Register', component: RegisterView },
   { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPasswordView },
   { path: '/reset-password/:uid/:token', name: 'ResetPassword', component: ResetPasswordView },
-
+  { path: '/support-dashboard', name: 'support-dashboard', component: SupportDashboard },
+ 
   {
     path: '/employee-dashboard',
     name: 'EmployeeDashboard',
