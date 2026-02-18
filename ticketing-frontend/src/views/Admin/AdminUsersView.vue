@@ -95,9 +95,9 @@
                     {{ user.is_active ? 'Active' : 'Inactive' }}
                   </span>
                 </td>
-                <td>{{ user.last_active || 'Never' }}</td>
+                <td>{{ user.last_login ? formatDate(user.last_login) : 'Never' }}</td>
                 <td>{{ user.ticket_count || 0 }}</td>
-                <td>{{ formatDate(user.created_at) }}</td>
+                <td>{{ formatDate(user.date_joined) }}</td>
                 <td>
                   <div class="btn-group">
                     <button class="btn btn-sm btn-outline-primary" @click="editUser(user)">
@@ -291,8 +291,19 @@ function getRoleBadgeClass(role) {
 }
 
 function formatDate(dateString) {
-  return dateString ? new Date(dateString).toLocaleDateString() : 'N/A'
+  if (!dateString) return 'Never'
+  const date = new Date(dateString)
+  const options = {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  }
+  return date.toLocaleString(undefined, options)
 }
+
 
 function toggleAll() {
   selectedUsers.value = selectAll.value ? filteredUsers.value.map(u => u.id) : []
@@ -385,18 +396,25 @@ async function deactivateUser(user) {
       method: 'POST',  // use POST
       headers: { 'Authorization': `Token ${token}` }
     })
+
     const data = await res.json()
     if (res.ok) {
-      user.is_active = false
-      Swal.fire({ icon: 'success', title: 'User Deactivated', timer: 2000, showConfirmButton: false })
-    } else console.error(data)
+      user.is_active = data.is_active
+      user.last_login = data.last_login  // update last login in table
+      Swal.fire({
+        icon: 'success',
+        title: `User ${user.is_active ? 'Activated' : 'Deactivated'}`,
+        text: `${user.first_name} is now ${user.is_active ? 'Active' : 'Inactive'}`,
+        timer: 2000,
+        showConfirmButton: false
+      })
+    } else {
+      console.error(data)
+    }
   } catch(e) {
     console.error(e)
   }
 }
-
-
-
 
 function confirmRoleChange() {
   if (roleUser.value) {
