@@ -6,7 +6,6 @@ import RegisterView from '@/views/RegisterView.vue'
 import ForgotPasswordView from '@/views/ForgotPasswordView.vue'
 import ResetPasswordView from '@/views/ResetPasswordView.vue'
 import SupportDashboard from '@/views/Support/SupportDashBoard.vue'
-import AdminDashboard from '@/views/Admin/AdminDashboard.vue'
 import UserModal from '@/components/UserModal.vue'
 import TicketModal from '@/components/TicketModal.vue'
 
@@ -16,7 +15,6 @@ import CreateTicketView from '@/views/User/CreateTicketView.vue'
 import TicketDetailView from '@/views/User/TicketDetailView.vue'
 
 // Layout
-const UserLayout = () => import('@/layouts/UserLayout.vue')
 
 const routes = [
   //  Public Auth Routes
