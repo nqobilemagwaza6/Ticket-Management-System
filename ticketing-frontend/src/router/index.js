@@ -1,57 +1,53 @@
+// router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
 
-// Auth Views
+// Auth
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import ForgotPasswordView from '@/views/ForgotPasswordView.vue'
 import ResetPasswordView from '@/views/ResetPasswordView.vue'
-import SupportDashboard from '@/views/Support/SupportDashBoard.vue'
-import UserModal from '@/components/UserModal.vue'
-import TicketModal from '@/components/TicketModal.vue'
-
-// User Views
-import UserDashboardView from '@/views/User/UserDashboardView.vue'
-import CreateTicketView from '@/views/User/CreateTicketView.vue'
-import TicketDetailView from '@/views/User/TicketDetailView.vue'
 
 // Layout
+import MainLayout from '@/layouts/MainLayout.vue'
+
+
+// User/Admin/Support Views
+import UserDashboardView from '@/views/User/UserDashboardView.vue'
+import CreateTicketView from '@/views/User/CreateTicketView.vue'
+import TicketListView from '@/views/User/TicketListView.vue'
+import TicketDetailView from '@/views/User/TicketDetailView.vue'
+import SupportDashboard from '@/views/Support/SupportDashBoard.vue'
 
 const routes = [
-  //  Public Auth Routes
+  // Public
   { path: '/', redirect: '/login' },
   { path: '/login', name: 'Login', component: LoginView },
   { path: '/register', name: 'Register', component: RegisterView },
   { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPasswordView },
   { path: '/reset-password/:uid/:token', name: 'ResetPassword', component: ResetPasswordView },
-  { path: '/support-dashboard', name: 'support-dashboard', component: SupportDashboard },
-  { path: '/admin-dashboard', name: 'admin-dashboard', component: AdminDashboard  },
-  { path: '/user-modal', name: 'user-modal', component: UserModal  },
-  { path: '/ticket-modal', name: 'ticket-modal', component: TicketModal  },
+
+  // Employee routes (nested under MainLayout)
   {
-    path: '/',
+    path: '/employee',
+    component: MainLayout,
     meta: { requiresAuth: true },
     children: [
-      {
-        path: 'employee-dashboard',
-        name: 'EmployeeDashboard',
-        component: UserDashboardView
-      },
-      {
-        path: 'create-ticket',
-        name: 'CreateTicket',
-        component: CreateTicketView
-      },
-      {
-        path: 'tickets',
-        name: 'TicketList',
-        component: () => import('@/views/User/TicketListView.vue')
-      },
-      {
-        path: 'tickets/:id',
-        name: 'TicketDetail',
-        component: TicketDetailView,
-        props: true
-      }
+      { path: 'dashboard', name: 'EmployeeDashboard', component: UserDashboardView },
+      { path: 'create-ticket', name: 'CreateTicket', component: CreateTicketView },
+      { path: 'tickets', name: 'TicketList', component: TicketListView },
+      { path: 'tickets/:id', name: 'TicketDetail', component: TicketDetailView, props: true }
+    ]
+  },
+
+
+
+  // Support routes
+  {
+    path: '/support',
+    component: MainLayout,
+    meta: { requiresAuth: true },
+    children: [
+      { path: 'dashboard', name: 'SupportDashboard', component: SupportDashboard }
     ]
   },
 
@@ -64,24 +60,25 @@ const router = createRouter({
   routes
 })
 
-//  Auth Helper
+// Auth helper
 function isAuthenticated() {
   const user = localStorage.getItem('user')
   const isAuth = localStorage.getItem('isAuthenticated')
   return !!(user && isAuth === 'true')
 }
 
-//  Route Guard
+// ======================
+// ROUTE GUARD
+// ======================
 router.beforeEach((to, from, next) => {
   const authenticated = isAuthenticated()
+  const user = JSON.parse(localStorage.getItem('user') || '{}')
 
-  if (to.meta.requiresAuth && !authenticated) {
-    next({ name: 'Login' })
-  } else if (to.name === 'Login' && authenticated) {
-    next({ name: 'EmployeeDashboard' })
-  } else {
-    next()
-  }
+  if (to.meta.requiresAuth && !authenticated) return next({ name: 'Login' })
+  if (to.meta.requiresAdmin && (!authenticated || user.role !== 'admin')) return next({ name: 'Login' })
+
+  // Removed the forced redirect from Login
+  next()
 })
 
 export default router
