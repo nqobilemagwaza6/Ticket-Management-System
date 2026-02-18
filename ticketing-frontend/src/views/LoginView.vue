@@ -89,6 +89,8 @@ async function loginUser() {
     const data = await response.json()
     if (!data.user) throw new Error(data.message || 'Invalid email or password.')
 
+    // Saves user info for UI purposes only
+    localStorage.setItem('token', data.token)
     localStorage.setItem('user', JSON.stringify(data.user))
     localStorage.setItem('isAuthenticated', 'true')
 

@@ -16,7 +16,12 @@ import UserDashboardView from '@/views/User/UserDashboardView.vue'
 import CreateTicketView from '@/views/User/CreateTicketView.vue'
 import TicketListView from '@/views/User/TicketListView.vue'
 import TicketDetailView from '@/views/User/TicketDetailView.vue'
+import AdminDashboard from '@/views/Admin/AdminDashboard.vue'
 import SupportDashboard from '@/views/Support/SupportDashBoard.vue'
+import AdminLayout from '@/layouts/AdminLayout.vue'
+import AdminUsersView from '@/views/Admin/AdminUsersView.vue'
+import AdminAgentsView from '@/views/Admin/AdminAgentsView.vue'
+import AdminTicketsView from '@/views/Admin/AdminTicketsView.vue'
 
 const routes = [
   // Public
@@ -39,7 +44,19 @@ const routes = [
     ]
   },
 
-
+  // Admin routes
+  {
+    path: '/admin',
+    component: AdminLayout,
+    meta: { requiresAdmin: true },
+    children: [
+       { path: 'dashboard', name: 'AdminDashboard', component: AdminDashboard },
+      { path: 'users', name: 'AdminUsers', component: AdminUsersView },
+      { path: 'agents', name: 'AdminAgents', component: AdminAgentsView },
+      { path: 'tickets', name: 'AdminTickets', component: AdminTicketsView }
+     
+    ]
+  },
 
   // Support routes
   {
@@ -74,11 +91,11 @@ router.beforeEach((to, from, next) => {
   const authenticated = isAuthenticated()
   const user = JSON.parse(localStorage.getItem('user') || '{}')
 
-  if (to.meta.requiresAuth && !authenticated) return next({ name: 'Login' })
-  if (to.meta.requiresAdmin && (!authenticated || user.role !== 'admin')) return next({ name: 'Login' })
-
-  // Removed the forced redirect from Login
-  next()
+  if (to.meta.requiresAuth && !authenticated) {
+    next({ name: 'Login' })
+  } else {
+    next()
+  }
 })
 
 export default router
