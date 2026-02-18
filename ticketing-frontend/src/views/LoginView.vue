@@ -89,6 +89,7 @@ async function loginUser() {
     const data = await response.json()
 
     // Saves user info for UI purposes only
+    localStorage.setItem('token', data.token)
     localStorage.setItem('user', JSON.stringify(data.user))
     localStorage.setItem('isAuthenticated', 'true')
 
