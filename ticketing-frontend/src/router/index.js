@@ -10,12 +10,12 @@ import ResetPasswordView from '@/views/ResetPasswordView.vue'
 // Layout
 import MainLayout from '@/layouts/MainLayout.vue'
 
+
 // User/Admin/Support Views
 import UserDashboardView from '@/views/User/UserDashboardView.vue'
 import CreateTicketView from '@/views/User/CreateTicketView.vue'
 import TicketListView from '@/views/User/TicketListView.vue'
 import TicketDetailView from '@/views/User/TicketDetailView.vue'
-import AdminDashboard from '@/views/Admin/AdminDashboard.vue'
 import SupportDashboard from '@/views/Support/SupportDashBoard.vue'
 
 const routes = [
@@ -39,16 +39,7 @@ const routes = [
     ]
   },
 
-  // Admin routes
-  {
-    path: '/admin',
-    component: MainLayout,
-    meta: { requiresAdmin: true },
-    children: [
-      { path: 'dashboard', name: 'AdminDashboard', component: AdminDashboard }
-      // Add other admin pages here
-    ]
-  },
+
 
   // Support routes
   {

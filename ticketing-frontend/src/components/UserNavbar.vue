@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #252422;">
     <div class="container-fluid">
-      <router-link class="navbar-brand fw-bold" to="/employee-dashboard" style="color: #EB5E28;">
+      <router-link class="navbar-brand fw-bold" to="/EmployeeDashboard" style="color: #EB5E28;">
         IT Support Portal
       </router-link>
       
@@ -12,7 +12,7 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <router-link class="nav-link" to="/employee-dashboard" active-class="active" style="color: #CCC5B9;">
+            <router-link class="nav-link" to="/EmployeeDashboard" active-class="active" style="color: #CCC5B9;">
               Dashboard
             </router-link>
           </li>
