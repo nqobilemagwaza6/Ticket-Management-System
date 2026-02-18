@@ -77,7 +77,7 @@ async function loginUser() {
     const response = await fetch('http://127.0.0.1:8000/api/login/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include', //  for session cookies
+      credentials: 'include',
       body: JSON.stringify({ email: email.value.trim(), password: password.value })
     })
 
@@ -87,18 +87,20 @@ async function loginUser() {
     }
 
     const data = await response.json()
+    if (!data.user) throw new Error(data.message || 'Invalid email or password.')
 
     // Saves user info for UI purposes only
+    localStorage.setItem('token', data.token)
     localStorage.setItem('user', JSON.stringify(data.user))
     localStorage.setItem('isAuthenticated', 'true')
 
-    // Redirects based on role (use named routes)
+    // Redirect based on role using route names
     if (data.user.role === 'admin') {
-      router.push({ name: 'AdminDashboard' })
+      router.push({ name: 'AdminDashboard' })         // Admin dashboard
     } else if (data.user.role === 'support') {
-      router.push({ name: 'SupportDashboard' })
+      router.push({ name: 'SupportDashboard' })      // Support agent dashboard
     } else {
-      router.push({ name: 'EmployeeDashboard' })
+      router.push({ name: 'EmployeeDashboard' })     // Regular user dashboard
     }
 
   } catch (err) {

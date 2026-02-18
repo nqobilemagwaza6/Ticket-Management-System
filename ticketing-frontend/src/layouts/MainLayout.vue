@@ -26,7 +26,6 @@
 
     <!-- Content Area -->
     <div class="content-area">
-
       <!-- Header -->
       <AppHeader @toggleSidebar="toggleSidebar" />
 

@@ -17,7 +17,7 @@
         <ul class="navbar-nav ms-auto">
           <!-- User Dashboard -->
           <li class="nav-item">
-            <router-link class="nav-link" to="/employee-dashboard">Dashboard</router-link>
+            <router-link class="nav-link" :to="{ name: 'EmployeeDashboard' }" > Dashboard</router-link>
           </li>
           <li class="nav-item">
             <router-link class="nav-link" to="/tickets">Tickets</router-link>

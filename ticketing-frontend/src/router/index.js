@@ -91,11 +91,11 @@ router.beforeEach((to, from, next) => {
   const authenticated = isAuthenticated()
   const user = JSON.parse(localStorage.getItem('user') || '{}')
 
-  if (to.meta.requiresAuth && !authenticated) return next({ name: 'Login' })
-  if (to.meta.requiresAdmin && (!authenticated || user.role !== 'admin')) return next({ name: 'Login' })
-
-  // Removed the forced redirect from Login
-  next()
+  if (to.meta.requiresAuth && !authenticated) {
+    next({ name: 'Login' })
+  } else {
+    next()
+  }
 })
 
 export default router
