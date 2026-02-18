@@ -92,13 +92,13 @@ async function loginUser() {
     localStorage.setItem('user', JSON.stringify(data.user))
     localStorage.setItem('isAuthenticated', 'true')
 
-    // Redirects based on role
+    // Redirects based on role (use named routes)
     if (data.user.role === 'admin') {
-      router.push('/admin-dashboard')            // Admin dashboard
+      router.push({ name: 'AdminDashboard' })
     } else if (data.user.role === 'support') {
-      router.push('/support-dashboard')    // Support agent dashboard
+      router.push({ name: 'SupportDashboard' })
     } else {
-      router.push('/employee-dashboard')   // Regular user dashboard
+      router.push({ name: 'EmployeeDashboard' })
     }
 
   } catch (err) {
