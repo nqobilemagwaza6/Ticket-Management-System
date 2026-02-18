@@ -15,8 +15,6 @@ import UserDashboardView from '@/views/User/UserDashboardView.vue'
 import CreateTicketView from '@/views/User/CreateTicketView.vue'
 import TicketDetailView from '@/views/User/TicketDetailView.vue'
 
-// Layout
-const UserLayout = () => import('@/layouts/UserLayout.vue')
 
 const routes = [
   //  Public Auth Routes
@@ -79,8 +77,6 @@ router.beforeEach((to, from, next) => {
 
   if (to.meta.requiresAuth && !authenticated) {
     next({ name: 'Login' })
-  } else if (to.name === 'Login' && authenticated) {
-    next({ name: 'EmployeeDashboard' })
   } else {
     next()
   }
