@@ -26,9 +26,9 @@
           <div class="col-md-3">
             <select class="form-select" v-model="roleFilter">
               <option value="">All Roles</option>
-              <option value="user">User</option>
-              <option value="agent">Agent</option>
-              <option value="admin">Admin</option>
+              <option value="User">User</option>
+              <option value="Support">Support</option>
+              <option value="Admin">Admin</option>
             </select>
           </div>
           <div class="col-md-3">
@@ -79,9 +79,9 @@
                 <td>
                   <div class="d-flex align-items-center">
                     <div class="avatar-circle me-2" :class="'bg-' + getAvatarColor(user.id)">
-                      {{ user.name.charAt(0) }}
+                      {{ user.first_name?.charAt(0) || '?' }}
                     </div>
-                    {{ user.name }}
+                    {{ user.first_name || 'N/A' }}
                   </div>
                 </td>
                 <td>{{ user.email }}</td>
@@ -91,13 +91,13 @@
                   </span>
                 </td>
                 <td>
-                  <span class="badge" :class="user.active ? 'bg-success' : 'bg-secondary'">
-                    {{ user.active ? 'Active' : 'Inactive' }}
+                  <span class="badge" :class="user.is_active ? 'bg-success' : 'bg-secondary'">
+                    {{ user.is_active ? 'Active' : 'Inactive' }}
                   </span>
                 </td>
-                <td>{{ user.lastActive || 'Never' }}</td>
-                <td>{{ user.ticketCount || 0 }}</td>
-                <td>{{ formatDate(user.created_at) }}</td>
+                <td>{{ user.last_login ? formatDate(user.last_login) : 'Never' }}</td>
+                <td>{{ user.ticket_count || 0 }}</td>
+                <td>{{ formatDate(user.date_joined) }}</td>
                 <td>
                   <div class="btn-group">
                     <button class="btn btn-sm btn-outline-primary" @click="editUser(user)">
@@ -106,9 +106,10 @@
                     <button class="btn btn-sm btn-outline-warning" @click="changeRole(user)">
                       <i class="bi bi-shield"></i>
                     </button>
-                    <button class="btn btn-sm" :class="user.active ? 'btn-outline-danger' : 'btn-outline-success'" @click="toggleUserStatus(user)">
-                      <i :class="user.active ? 'bi bi-pause-circle' : 'bi bi-play-circle'"></i>
+                    <button class="btn btn-sm btn-outline-danger" @click="deactivateUser(user)">
+                      <i class="bi bi-person-dash"></i>
                     </button>
+
                   </div>
                 </td>
               </tr>
@@ -123,19 +124,19 @@
       </div>
     </div>
 
-    <!-- Add/Edit User Modal -->
+    <!-- Add User Modal -->
     <div class="modal fade" id="userModal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">{{ editingUser ? 'Edit User' : 'Add New User' }}</h5>
+            <h5 class="modal-title">Add New User</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <form @submit.prevent="saveUser">
               <div class="mb-3">
                 <label class="form-label">Name</label>
-                <input type="text" class="form-control" v-model="userForm.name" required>
+                <input type="text" class="form-control" v-model="userForm.first_name" required>
               </div>
               <div class="mb-3">
                 <label class="form-label">Email</label>
@@ -144,14 +145,10 @@
               <div class="mb-3">
                 <label class="form-label">Role</label>
                 <select class="form-select" v-model="userForm.role" required>
-                  <option value="user">User</option>
-                  <option value="agent">Agent</option>
-                  <option value="admin">Admin</option>
+                  <option value="User">User</option>
+                  <option value="Support">Support</option>
+                  <option value="Admin">Admin</option>
                 </select>
-              </div>
-              <div v-if="!editingUser" class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" class="form-control" v-model="userForm.password" required>
               </div>
             </form>
           </div>
@@ -172,11 +169,11 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <p>Change role for <strong>{{ roleUser?.name }}</strong></p>
+            <p>Change role for <strong>{{ roleUser?.first_name }}</strong></p>
             <select class="form-select" v-model="newRole">
-              <option value="user">User</option>
-              <option value="agent">Agent</option>
-              <option value="admin">Admin</option>
+              <option value="User">User</option>
+              <option value="Support">Support</option>
+              <option value="Admin">Admin</option>
             </select>
           </div>
           <div class="modal-footer">
@@ -186,12 +183,53 @@
         </div>
       </div>
     </div>
+    <!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <form @submit.prevent="updateUser">
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-control" v-model="editForm.first_name" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" v-model="editForm.email" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Role</label>
+            <select class="form-select" v-model="editForm.role" required>
+              <option value="User">User</option>
+              <option value="Support">Support</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" @click="updateUser">Update</button>
+      </div>
+    </div>
+  </div>
+</div>
+
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { Modal } from 'bootstrap'
+import Swal from 'sweetalert2'
 
 // State
 const users = ref([])
@@ -200,17 +238,24 @@ const roleFilter = ref('')
 const statusFilter = ref('')
 const selectedUsers = ref([])
 const selectAll = ref(false)
-const editingUser = ref(null)
 const roleUser = ref(null)
 const newRole = ref('')
 
 // Form state
 const userForm = ref({
-  name: '',
+  first_name: '',
   email: '',
-  role: 'user',
-  password: ''
+  role: 'user'
 })
+
+const editForm = ref({
+  id: null,
+  first_name: '',
+  email: '',
+  role: ''
+})
+
+let editUserModal = null
 
 // Modals
 let userModal = null
@@ -223,20 +268,13 @@ const filteredUsers = computed(() => {
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(u => 
-      u.name.toLowerCase().includes(query) || 
-      u.email.toLowerCase().includes(query)
+      u.first_name?.toLowerCase().includes(query) || 
+      u.email?.toLowerCase().includes(query)
     )
   }
 
-  if (roleFilter.value) {
-    filtered = filtered.filter(u => u.role === roleFilter.value)
-  }
-
-  if (statusFilter.value) {
-    filtered = filtered.filter(u => 
-      statusFilter.value === 'active' ? u.active : !u.active
-    )
-  }
+  if (roleFilter.value) filtered = filtered.filter(u => u.role === roleFilter.value)
+  if (statusFilter.value) filtered = filtered.filter(u => statusFilter.value === 'active' ? u.is_active : !u.is_active)
 
   return filtered
 })
@@ -248,62 +286,134 @@ function getAvatarColor(id) {
 }
 
 function getRoleBadgeClass(role) {
-  const classes = {
-    'admin': 'bg-danger',
-    'agent': 'bg-info',
-    'user': 'bg-primary'
-  }
+  const classes = { 'admin':'bg-danger', 'agent':'bg-info', 'user':'bg-primary' }
   return classes[role] || 'bg-secondary'
 }
 
 function formatDate(dateString) {
-  if (!dateString) return 'N/A'
-  return new Date(dateString).toLocaleDateString()
+  if (!dateString) return 'Never'
+  const date = new Date(dateString)
+  const options = {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  }
+  return date.toLocaleString(undefined, options)
 }
 
+
 function toggleAll() {
-  if (selectAll.value) {
-    selectedUsers.value = filteredUsers.value.map(u => u.id)
-  } else {
-    selectedUsers.value = []
-  }
+  selectedUsers.value = selectAll.value ? filteredUsers.value.map(u => u.id) : []
 }
 
 function showAddUserModal() {
-  editingUser.value = null
-  userForm.value = { name: '', email: '', role: 'user', password: '' }
+  userForm.value = { first_name: '', email: '', role: 'user' }
   userModal.show()
 }
 
-function editUser(user) {
-  editingUser.value = user
-  userForm.value = { ...user }
-  userModal.show()
-}
-
-function saveUser() {
-  if (editingUser.value) {
-    // Update existing user
-    const index = users.value.findIndex(u => u.id === editingUser.value.id)
-    users.value[index] = { ...editingUser.value, ...userForm.value }
-  } else {
-    // Add new user
-    const newUser = {
-      id: users.value.length + 1,
-      ...userForm.value,
-      active: true,
-      ticketCount: 0,
-      created_at: new Date().toISOString()
+// Save user via backend
+async function saveUser() {
+  try {
+    const token = localStorage.getItem('token')
+    const res = await fetch('http://127.0.0.1:8000/api/admin_create_user/', {
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify(userForm.value)
+    })
+    const data = await res.json()
+    if (res.ok) {
+      await fetchUsers()
+      userModal.hide()
+      Swal.fire({ icon:'success', title:'User Created', text:`${userForm.value.first_name} was created!`, timer:2000, showConfirmButton:false })
+    } else {
+      console.error(data)
     }
-    users.value.push(newUser)
+  } catch(e) {
+    console.error(e)
   }
-  userModal.hide()
 }
 
 function changeRole(user) {
   roleUser.value = user
   newRole.value = user.role
   roleModal.show()
+}
+function editUser(user) {
+  editForm.value = {
+    id: user.id,
+    first_name: user.first_name,
+    email: user.email,
+    role: user.role
+  }
+  editUserModal.show()
+}
+
+async function updateUser() {
+  try {
+    const token = localStorage.getItem('token')
+
+    const res = await fetch(
+      `http://127.0.0.1:8000/api/admin_update_user/${editForm.value.id}/`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`
+        },
+        body: JSON.stringify(editForm.value)
+      }
+    )
+
+    const data = await res.json()
+
+    if (res.ok) {
+      await fetchUsers()
+      editUserModal.hide()
+      Swal.fire({
+        icon: 'success',
+        title: 'User Updated',
+        timer: 2000,
+        showConfirmButton: false
+      })
+    } else {
+      console.error(data)
+    }
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+async function deactivateUser(user) {
+  try {
+    const token = localStorage.getItem('token')
+    const res = await fetch(`http://127.0.0.1:8000/api/deactivate_user/${user.id}/`, {
+      method: 'POST',  // use POST
+      headers: { 'Authorization': `Token ${token}` }
+    })
+
+    const data = await res.json()
+    if (res.ok) {
+      user.is_active = data.is_active
+      user.last_login = data.last_login  // update last login in table
+      Swal.fire({
+        icon: 'success',
+        title: `User ${user.is_active ? 'Activated' : 'Deactivated'}`,
+        text: `${user.first_name} is now ${user.is_active ? 'Active' : 'Inactive'}`,
+        timer: 2000,
+        showConfirmButton: false
+      })
+    } else {
+      console.error(data)
+    }
+  } catch(e) {
+    console.error(e)
+  }
 }
 
 function confirmRoleChange() {
@@ -314,39 +424,30 @@ function confirmRoleChange() {
 }
 
 function toggleUserStatus(user) {
-  user.active = !user.active
+  user.is_active = !user.is_active
 }
 
 function exportUsers() {
-  if (!users.value || users.value.length === 0) return
-  const cols = ['id','name','email','role','active','lastActive','ticketCount','created_at']
+  if (!users.value.length) return
+  const cols = ['id','first_name','email','role','is_active','last_active','ticket_count','created_at']
   const rows = users.value.map(u => ({
     id: u.id,
-    name: u.name,
+    first_name: u.first_name,
     email: u.email,
     role: u.role,
-    active: u.active ? 'Active' : 'Inactive',
-    lastActive: u.lastActive || '',
-    ticketCount: u.ticketCount || 0,
+    is_active: u.is_active ? 'Active' : 'Inactive',
+    last_active: u.last_active || '',
+    ticket_count: u.ticket_count || 0,
     created_at: u.created_at || ''
   }))
-  downloadCSV('users.csv', cols, rows)
-}
-
-function downloadCSV(filename, columns, data) {
   const esc = v => String(v ?? '').replace(/"/g, '""')
-  const header = columns.join(',')
-  const body = data.map(r => columns.map(c => `"${esc(r[c])}"`).join(',')).join('\n')
-  const csv = header + '\n' + body
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
+  const csv = [cols.join(','), ...rows.map(r => cols.map(c => `"${esc(r[c])}"`).join(',')).join('\n')].join('\n')
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' })
   const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  document.body.appendChild(a)
+  a.href = URL.createObjectURL(blob)
+  a.download = 'users.csv'
   a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  URL.revokeObjectURL(a.href)
 }
 
 function resetFilters() {
@@ -355,49 +456,36 @@ function resetFilters() {
   statusFilter.value = ''
 }
 
-// Load data
-async function loadUsers() {
+// Fetch users from backend
+async function fetchUsers() {
   try {
-    users.value = [
-      { id: 1, name: 'John Smith', email: 'john@example.com', role: 'user', active: true, lastActive: '2024-01-15', ticketCount: 5, created_at: '2023-12-01' },
-      { id: 2, name: 'Sarah Johnson', email: 'sarah@example.com', role: 'agent', active: true, lastActive: '2024-01-15', ticketCount: 12, created_at: '2023-11-15' },
-      { id: 3, name: 'Mike Wilson', email: 'mike@example.com', role: 'agent', active: true, lastActive: '2024-01-14', ticketCount: 8, created_at: '2023-11-20' },
-      { id: 4, name: 'Jane Smith', email: 'jane@example.com', role: 'admin', active: true, lastActive: '2024-01-15', ticketCount: 0, created_at: '2023-10-01' },
-      { id: 5, name: 'Tom Brown', email: 'tom@example.com', role: 'user', active: false, lastActive: '2024-01-10', ticketCount: 3, created_at: '2023-12-10' }
-    ]
-  } catch (error) {
-    console.error('Error loading users:', error)
+    const token = localStorage.getItem('token')
+    const res = await fetch('http://127.0.0.1:8000/api/users_list/', {
+      headers: { 'Authorization': `Token ${token}` }
+    })
+    const data = await res.json()
+    if (res.ok) users.value = data
+    else console.error(data)
+  } catch(e) {
+    console.error(e)
   }
 }
 
 onMounted(() => {
-  loadUsers()
-  
-  // Initialize modals
+  fetchUsers()
   userModal = new Modal(document.getElementById('userModal'))
   roleModal = new Modal(document.getElementById('roleModal'))
+  editUserModal = new Modal(document.getElementById('editUserModal'))
+
 })
 </script>
 
 <style scoped>
 .avatar-circle {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 500;
-  text-transform: uppercase;
+  width: 32px; height: 32px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 500; text-transform: uppercase;
 }
-
-.badge {
-  padding: 6px 10px;
-  font-weight: 500;
-}
-
-.btn-group .btn {
-  padding: 0.25rem 0.5rem;
-}
+.badge { padding: 6px 10px; font-weight:500; }
+.btn-group .btn { padding:0.25rem 0.5rem; }
 </style>
