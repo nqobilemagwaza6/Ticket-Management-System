@@ -73,7 +73,7 @@
             </thead>
             <tbody>
               <tr v-for="agent in agents" :key="agent.id">
-                <td>
+                <td data-label="Agent">
                   <div class="d-flex align-items-center">
                     <div class="avatar-circle me-2" :class="'bg-' + getAvatarColor(agent.id)">
                       {{ (agent.name || agent.first_name || '?').charAt(0).toUpperCase() }}
@@ -81,18 +81,18 @@
                     {{ agent.name }}
                   </div>
                 </td>
-                <td>{{ agent.email }}</td>
-                <td>
+                <td data-label="Email">{{ agent.email }}</td>
+                <td data-label="Status">
                   <span class="badge" :class="agent.active ? 'bg-success' : 'bg-danger'">
                     {{ agent.active ? 'Active' : 'Inactive' }}
                   </span>
                 </td>
-                <td>{{ agent.ticketCount }}</td>
-                <td>{{ agent.resolvedCount }}</td>
-                <td>{{ agent.inProgressCount }}</td>
-                <td>{{ agent.resolutionRate }}%</td>
-                <td>{{ agent.avgResponseTime }}h</td>
-                <td>
+                <td data-label="Tickets Assigned">{{ agent.ticketCount }}</td>
+                <td data-label="Resolved">{{ agent.resolvedCount }}</td>
+                <td data-label="In Progress">{{ agent.inProgressCount }}</td>
+                <td data-label="Resolution Rate">{{ agent.resolutionRate }}%</td>
+                <td data-label="Avg Response Time">{{ agent.avgResponseTime }}h</td>
+                <td data-label="Performance">
                   <div class="d-flex align-items-center gap-2">
                     <div class="progress flex-grow-1" style="height: 6px;">
                       <div class="progress-bar" :class="getPerformanceClass(agent.performance)" :style="{ width: agent.performance + '%' }"></div>
@@ -100,17 +100,17 @@
                     <span class="small">{{ agent.performance }}%</span>
                   </div>
                 </td>
-                <td>
+                <td data-label="Actions">
                   <div class="btn-group">
                     <button class="btn btn-sm btn-outline-primary" @click="editAgent(agent)">
                       <i class="bi bi-pencil"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-info" @click="viewAgentTickets(agent)">
-                      <i class="bi bi-ticket"></i>
-                    </button> 
-                  <button class="btn btn-sm" :class="agent.active ? 'btn-outline-warning' : 'btn-outline-success'" @click="toggleAgentStatus(agent)">
-                    <i :class="agent.active ? 'bi bi-pause-circle' : 'bi bi-play-circle'"></i>
-                  </button> 
+                      <button class="btn btn-sm btn-outline-info" @click="viewAgentTickets(agent)">
+                        <i class="bi bi-ticket"></i>
+                      </button>
+                      <button :class="['btn','btn-sm', agent.active ? 'btn-success' : 'btn-danger', 'text-white']" @click="toggleAgentStatus(agent)">
+                        <i :class="agent.active ? 'bi bi-check-circle' : 'bi bi-x-circle'"></i>
+                      </button>
                   </div> 
                 </td>
               </tr>
@@ -189,12 +189,12 @@
               </thead>
               <tbody>
                 <tr v-for="t in agentTickets" :key="t.id">
-                  <td>#{{ t.id }}</td>
-                  <td>{{ t.title }}</td>
-                  <td>{{ t.user || 'N/A' }}</td>
-                  <td>{{ t.status || 'N/A' }}</td>
-                  <td>{{ t.agent || 'Unassigned' }}</td>
-                  <td>
+                  <td data-label="ID">#{{ t.id }}</td>
+                  <td data-label="Title">{{ t.title }}</td>
+                  <td data-label="User">{{ t.user || 'N/A' }}</td>
+                  <td data-label="Status">{{ t.status || 'N/A' }}</td>
+                  <td data-label="Assigned">{{ t.agent || 'Unassigned' }}</td>
+                  <td data-label="Action">
                     <button v-if="!t.agent" class="btn btn-sm btn-primary" @click="assignTicketToAgent(t)">
                       Assign to {{ currentAgent.name }}
                     </button>
@@ -259,6 +259,11 @@ function getPerformanceClass(performance) {
   if (performance >= 70) return 'bg-info'
   if (performance >= 50) return 'bg-warning'
   return 'bg-danger'
+}
+
+function getAgentDisplayName(agent) {
+  if (!agent) return 'Unknown'
+  return agent.name || agent.full_name || agent.first_name || agent.username || 'Unknown'
 }
 
 function showAddAgentModal() {
@@ -394,15 +399,33 @@ function updateStats() {
 
 function assignTicketToAgent(ticket) {
   if (!currentAgent.value || !ticket) return
-  // if ticket already assigned, skip
-  if (ticket.agent === currentAgent.value.name) return
-  // assign
-  ticket.agent = currentAgent.value.name
-  const a = agents.value.find(x => x.id === currentAgent.value.id)
+
+  const agentName = getAgentDisplayName(currentAgent.value)
+
+  // prevent re-assigning to same agent
+  if (ticket.agent === agentName) return
+
+  // Update master tickets list if present
+  const idx = allTickets.value.findIndex(t => t.id === ticket.id)
+  if (idx !== -1) {
+    allTickets.value[idx] = { ...allTickets.value[idx], agent: agentName }
+  }
+
+  // Update the ticket object in the modal list
+  ticket.agent = agentName
+
+  // Increment agent ticket count (match by id or name)
+  let a = agents.value.find(x => x.id === currentAgent.value.id)
+  if (!a) a = agents.value.find(x => getAgentDisplayName(x) === agentName)
   if (a) a.ticketCount = (a.ticketCount || 0) + 1
-  // remove unassigned-only entries from modal list
-  agentTickets.value = agentTickets.value.filter(t => t.id !== ticket.id || t.agent === currentAgent.value.name)
+
+  // Remove assigned ticket from modal list (it was unassigned view)
+  agentTickets.value = agentTickets.value.filter(t => t.id !== ticket.id)
+
   updateStats()
+
+  // User feedback
+  try { Swal.fire({ icon: 'success', title: 'Assigned', text: `Ticket ${ticket.id} assigned to ${agentName}`, timer: 1400, showConfirmButton: false }) } catch (e) {}
 }
 
 // Load data
@@ -495,5 +518,14 @@ onMounted(() => {
 .card {
   border: 1px solid #e9ecef;
   box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+/* Responsive stacked rows for agents table on small screens */
+@media (max-width: 576px) {
+  .table thead { display: none; }
+  .table, .table tbody, .table tr, .table td { display: block; width: 100%; }
+  .table tr { margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.04); padding: 8px; border-radius: 8px; }
+  .table td { display: flex; justify-content: space-between; padding: 8px 12px; border: none; }
+  .table td::before { content: attr(data-label); font-weight: 600; color: #6b7280; margin-right: 12px; }
+  .avatar-circle { width: 28px; height: 28px; font-size: 14px; }
 }
 </style>

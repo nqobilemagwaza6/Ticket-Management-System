@@ -71,12 +71,12 @@
             </thead>
             <tbody>
               <tr v-for="user in filteredUsers" :key="user.id">
-                <td>
+                <td data-label="Select">
                   <div class="form-check">
                     <input class="form-check-input" type="checkbox" v-model="selectedUsers" :value="user.id">
                   </div>
                 </td>
-                <td>
+                <td data-label="Name">
                   <div class="d-flex align-items-center">
                     <div class="avatar-circle me-2">
                       {{ user.first_name?.charAt(0) || '?' }}
@@ -86,21 +86,21 @@
                     </div>
                   </div>
                 </td>
-                <td>{{ user.email }}</td>
-                <td>
+                <td data-label="Email">{{ user.email }}</td>
+                <td data-label="Role">
                   <span class="badge" :class="getRoleBadgeClass(user.role)">
                     {{ user.role }}
                   </span>
                 </td>
-                <td>
+                <td data-label="Status">
                   <span class="badge" :class="user.is_active ? 'bg-success' : 'bg-danger'">
                     {{ user.is_active ? 'Active' : 'Inactive' }}
                   </span>
                 </td>
-                <td>{{ user.last_login ? formatDate(user.last_login) : 'Never' }}</td>
-                <td>{{ user.ticket_count || 0 }}</td>
-                <td>{{ formatDate(user.date_joined) }}</td>
-                <td>
+                <td data-label="Last Active">{{ user.last_login ? formatDate(user.last_login) : 'Never' }}</td>
+                <td data-label="Tickets Created">{{ user.ticket_count || 0 }}</td>
+                <td data-label="Joined Date">{{ formatDate(user.date_joined) }}</td>
+                <td data-label="Actions">
                   <div class="btn-group">
                     <button class="btn btn-sm btn-outline-primary" @click="editUser(user)">
                       <i class="bi bi-pencil"></i>
@@ -492,4 +492,13 @@ onMounted(() => {
 }
 .badge { padding: 6px 10px; font-weight:500; }
 .btn-group .btn { padding:0.25rem 0.5rem; }
+/* Responsive stacked rows for users table on small screens */
+@media (max-width: 576px) {
+  .table thead { display: none; }
+  .table, .table tbody, .table tr, .table td { display: block; width: 100%; }
+  .table tr { margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.04); padding: 8px; border-radius: 8px; }
+  .table td { display: flex; justify-content: space-between; padding: 8px 12px; border: none; }
+  .table td::before { content: attr(data-label); font-weight: 600; color: #6b7280; margin-right: 12px; }
+  .avatar-circle { width: 28px; height: 28px; font-size: 14px; }
+}
 </style>
