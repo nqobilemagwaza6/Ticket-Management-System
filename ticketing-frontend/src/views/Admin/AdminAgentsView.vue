@@ -227,6 +227,7 @@ const allTickets = ref([])
 const agentTickets = ref([])
 const currentAgent = ref(null)
 const editingAgent = ref(null)
+const API_BASE ='https://ticketing-backend-1-mylx.onrender.com'
 
 // Stats
 const stats = ref({
@@ -306,7 +307,7 @@ function saveAgent() {
 async function toggleAgentStatus(agent) {
   try {
     const token = localStorage.getItem('token')
-    const res = await fetch(`http://127.0.0.1:8000/api/deactivate_user/${agent.id}/`, {
+    const res = await fetch(`${API_BASE}/api/deactivate_user/${agent.id}/`, {
       method: 'POST',  // POST request to deactivate/activate the agent
       headers: {
         'Authorization': `Token ${token}`,
@@ -409,7 +410,7 @@ function assignTicketToAgent(ticket) {
 async function loadAgents() {
   try {
     const token = localStorage.getItem('token')
-    const res = await fetch('http://127.0.0.1:8000/api/users_list/', {
+    const res = await fetch('${API_BASE}/api/users_list/', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
