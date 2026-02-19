@@ -1,12 +1,8 @@
-
- <template>
+<template>
   <div class="container py-4">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <div>
-        <h2 class="fw-bold">Support Agent</h2>
-        <p class="text-muted mb-0">Agent Dashboard</p>
-      </div>
+      <h2 class="fw-bold">Support Dashboard</h2>
     </div>
 
     <!-- Loading -->
@@ -17,40 +13,20 @@
     </div>
 
     <template v-else>
-      <!-- Stats Cards -->
+     
+           <!-- Stats Cards Row -->
       <div class="row g-3 mb-4">
-        <div class="col-12 col-sm-6 col-md-3" v-for="stat in statsArray" :key="stat.label">
-          <div class="card text-center shadow-sm">
-            <div class="card-body">
-              <p class="text-uppercase text-secondary mb-2">{{ stat.label }}</p>
-              <h3 class="fw-bold">{{ stat.value }}</h3>
-            </div>
-          </div>
-        </div>
+        <TicketStatsCard label="ASSIGNED TICKETS" :value="stats.assigned" />
+        <TicketStatsCard label="OPEN" :value="stats.open" />
+        <TicketStatsCard label="IN PROGRESS" :value="stats.inProgress" />
+        <TicketStatsCard label="RESOLVED" :value="stats.resolved" />
       </div>
 
-      <!-- Tickets List -->
-      <div>
-        <h4 class="mb-3">Assigned Tickets</h4>
-        <ul class="list-group">
-          <li
-            v-for="ticket in assignedTickets"
-            :key="ticket.id"
-            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-            @click="selectTicket(ticket)"
-            style="cursor:pointer"
-          >
-            <div>
-              <strong>#{{ ticket.number }}</strong> - {{ ticket.submittedBy }}
-            </div>
-            <span class="badge rounded-pill" :class="ticketCategoryClass(ticket.category)">
-              {{ ticket.category }}
-            </span>
-          </li>
-        </ul>
-      </div>
+      <!-- Assigned Tickets Table -->
+      <TicketTable :tickets="assignedTickets" />
+
+
     </template>
-
     <!-- Ticket Modal -->
     <div
       class="modal fade show"
@@ -108,82 +84,63 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import TicketStatsCard from '@/components/TicketStatsCard.vue'   // adjust path if needed
+import TicketTable from '@/components/TicketTable.vue'
 
 const loading = ref(true)
 const tickets = ref([])
+const userName = ref('Agent')
 
-// --- Dummy Tickets (always show them) ---
+// Dummy data – replace with API call
 tickets.value = [
   {
     id: 1,
-    number: 'TT1125845',
-    submittedBy: 'John Doe',
-    createdAt: '2026-02-16T10:18:00',
+    title: 'App logs out every time I try to use it',
     category: 'Software',
-    assignedTo: 'Agent Smith',
-    lastUpdated: '2026-02-16T11:01:00',
-    description: 'App logs out every time I try to use it',
-    status: 'In Progress'
+    status: 'In Progress',
+    assigned_to: 'Agent Smith',
+    created_at: '2026-02-16T10:18:00'
   },
   {
     id: 2,
-    number: 'TT1125846',
-    submittedBy: 'Jane Roe',
-    createdAt: '2026-02-16T09:30:00',
+    title: 'Monitor flickering when powered on',
     category: 'Hardware',
-    assignedTo: 'Agent Smith',
-    lastUpdated: '2026-02-16T10:45:00',
-    description: 'Monitor flickering when powered on',
-    status: 'Open'
+    status: 'Open',
+    assigned_to: 'Agent Smith',
+    created_at: '2026-02-16T09:30:00'
   },
   {
     id: 3,
-    number: 'TT1125847',
-    submittedBy: 'Alice Lee',
-    createdAt: '2026-02-15T14:20:00',
+    title: 'Cannot connect to VPN',
     category: 'Network',
-    assignedTo: 'Agent Smith',
-    lastUpdated: '2026-02-16T08:15:00',
-    description: 'Cannot connect to VPN',
-    status: 'Resolved'
+    status: 'Resolved',
+    assigned_to: 'Agent Smith',
+    created_at: '2026-02-15T14:20:00'
   }
 ]
 
-// --- Use all tickets for testing (ignore localStorage user) ---
+// In a real app, you would fetch only tickets assigned to this agent
 const assignedTickets = computed(() => tickets.value)
 
-const statsArray = computed(() => {
-  const assigned = assignedTickets.value
-  return [
-    { label: 'Assigned Tickets', value: assigned.length },
-    { label: 'Open', value: assigned.filter(t => t.status === 'Open').length },
-    { label: 'In Progress', value: assigned.filter(t => t.status === 'In Progress').length },
-    { label: 'Resolved', value: assigned.filter(t => t.status === 'Resolved').length }
-  ]
+const stats = computed(() => {
+  const all = assignedTickets.value
+  return {
+    assigned: all.length,
+    open: all.filter(t => t.status === 'Open').length,
+    inProgress: all.filter(t => t.status === 'In Progress').length,
+    resolved: all.filter(t => t.status === 'Resolved').length
+  }
 })
 
-const selectedTicket = ref(null)
-function selectTicket(ticket) { selectedTicket.value = { ...ticket } }
-function closeModal() { selectedTicket.value = null }
-
-function ticketCategoryClass(category) {
-  switch (category.toLowerCase()) {
-    case 'software': return 'bg-primary text-white'
-    case 'hardware': return 'bg-warning text-dark'
-    case 'network': return 'bg-info text-white'
-    default: return 'bg-secondary text-white'
-  }
-}
-
-const formatDateTime = (d) => new Date(d).toLocaleString()
-function markResolved() { alert('Ticket marked resolved'); closeModal() }
-function addComment() {
-  const comment = prompt('Add your comment:')
-  if (comment) console.log('Comment added:', comment)
-}
-
-onMounted(() => setTimeout(() => { loading.value = false }, 300))
+// Simulate loading
+onMounted(() => {
+  setTimeout(() => { loading.value = false }, 300)
+  // Fetch user name from localStorage
+  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  userName.value = user.name || 'Agent'
+})
 </script>
+
 
 <style scoped>
 .modal-body { max-height: 60vh; overflow-y: auto; }

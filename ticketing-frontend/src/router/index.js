@@ -22,6 +22,8 @@ import AdminLayout from '@/layouts/AdminLayout.vue'
 import AdminUsersView from '@/views/Admin/AdminUsersView.vue'
 import AdminAgentsView from '@/views/Admin/AdminAgentsView.vue'
 import AdminTicketsView from '@/views/Admin/AdminTicketsView.vue'
+import AssignedTicketsView from '@/views/Support/AssignedTicketsView.vue'
+import AllTicketsView from '@/views/Support/AllTicketsView.vue'
 
 const routes = [
   // Public
@@ -64,7 +66,9 @@ const routes = [
     component: MainLayout,
     meta: { requiresAuth: true },
     children: [
-      { path: 'dashboard', name: 'SupportDashboard', component: SupportDashboard }
+    { path: 'dashboard', name: 'SupportDashboard', component: SupportDashboard },
+    { path: 'tickets', name: 'AssignedTickets', component: AssignedTicketsView },
+    { path: 'all-tickets', name: 'AllTickets', component: AllTicketsView }
     ]
   },
 
