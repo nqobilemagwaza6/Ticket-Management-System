@@ -75,7 +75,7 @@
               <tr v-for="agent in agents" :key="agent.id">
                 <td>
                   <div class="d-flex align-items-center">
-                    <div class="avatar-circle me-2" :class="'bg-' + getAvatarColor(agent.id)">
+                    <div class="avatar-circle me-2">
                       {{ agent.name.charAt(0) }}
                     </div>
                     {{ agent.name }}
@@ -83,7 +83,7 @@
                 </td>
                 <td>{{ agent.email }}</td>
                 <td>
-                  <span class="badge" :class="agent.active ? 'bg-success' : 'bg-secondary'">
+                  <span class="badge" :class="agent.active ? 'bg-success' : 'bg-danger'">
                     {{ agent.active ? 'Active' : 'Inactive' }}
                   </span>
                 </td>
@@ -107,10 +107,10 @@
                     </button>
                     <button class="btn btn-sm btn-outline-info" @click="viewAgentTickets(agent)">
                       <i class="bi bi-ticket"></i>
-                    </button> 
-                    <button class="btn btn-sm" :class="agent.active ? 'btn-outline-warning' : 'btn-outline-success'" @click="toggleAgentStatus(agent)">
-                      <i :class="agent.active ? 'bi bi-pause-circle' : 'bi bi-play-circle'"></i>
-                    </button> 
+                    </button>
+                    <button :class="['btn','btn-sm', agent.active ? 'btn-success' : 'btn-danger', 'text-white']" @click="toggleAgentStatus(agent)">
+                      <i :class="agent.active ? 'bi bi-check-circle' : 'bi bi-x-circle'"></i>
+                    </button>
                   </div> 
                 </td>
               </tr>
@@ -474,6 +474,8 @@ onMounted(() => {
   color: white;
   font-weight: 500;
   text-transform: uppercase;
+  background-color: var(--accent-orange) !important;
+  color: #fff !important;
 }
 
 .badge {

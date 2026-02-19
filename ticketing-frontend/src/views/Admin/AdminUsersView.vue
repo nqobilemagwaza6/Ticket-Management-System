@@ -78,10 +78,12 @@
                 </td>
                 <td>
                   <div class="d-flex align-items-center">
-                    <div class="avatar-circle me-2" :class="'bg-' + getAvatarColor(user.id)">
+                    <div class="avatar-circle me-2">
                       {{ user.first_name?.charAt(0) || '?' }}
                     </div>
-                    {{ user.first_name || 'N/A' }}
+                    <div>
+                      {{ user.first_name || 'N/A' }}
+                    </div>
                   </div>
                 </td>
                 <td>{{ user.email }}</td>
@@ -91,7 +93,7 @@
                   </span>
                 </td>
                 <td>
-                  <span class="badge" :class="user.is_active ? 'bg-success' : 'bg-secondary'">
+                  <span class="badge" :class="user.is_active ? 'bg-success' : 'bg-danger'">
                     {{ user.is_active ? 'Active' : 'Inactive' }}
                   </span>
                 </td>
@@ -106,8 +108,8 @@
                     <button class="btn btn-sm btn-outline-warning" @click="changeRole(user)">
                       <i class="bi bi-shield"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" @click="deactivateUser(user)">
-                      <i class="bi bi-person-dash"></i>
+                    <button :class="['btn','btn-sm', user.is_active ? 'btn-success' : 'btn-danger', 'text-white']" @click="deactivateUser(user)">
+                      <i :class="user.is_active ? 'bi bi-check-circle' : 'bi bi-x-circle'"></i>
                     </button>
 
                   </div>
@@ -485,6 +487,8 @@ onMounted(() => {
   width: 32px; height: 32px;
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
   color: white; font-weight: 500; text-transform: uppercase;
+  background-color: var(--accent-orange) !important;
+  color: #fff !important;
 }
 .badge { padding: 6px 10px; font-weight:500; }
 .btn-group .btn { padding:0.25rem 0.5rem; }
