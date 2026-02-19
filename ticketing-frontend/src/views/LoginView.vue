@@ -100,6 +100,7 @@ async function loginUser() {
     throw new Error(data.message || 'Invalid email or password.')
   }
 // Store user info and authentication status
+    localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user))
     localStorage.setItem('isAuthenticated', 'true')
 // Show success alert
