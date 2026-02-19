@@ -142,15 +142,32 @@ function submitComment() {
 
 async function fetchTicket() {
   try {
+    const token = localStorage.getItem('token'); // Get the token from localStorage
+    
+    // If the token doesn't exist, exit the function
+    if (!token) {
+      console.error("No token found");
+      return;
+    }
+
     const res = await fetch(`http://127.0.0.1:8000/api/tickets/${route.params.id}/`, {
-      credentials: 'include'
-    })
-    if (!res.ok) throw new Error('Failed to fetch ticket')
-    ticket.value = await res.json()
+      method: 'GET', // Use GET method to fetch ticket details
+      credentials: 'include', // This includes cookies (session info)
+      headers: {
+        'Authorization': `Token ${token}`, // Include the token in the Authorization header
+        'Content-Type': 'application/json' // Ensure content type is JSON
+      }
+    });
+
+    if (!res.ok) throw new Error('Failed to fetch ticket'); // Error if response is not OK
+
+    ticket.value = await res.json(); // Parse the response JSON and set it to the ticket data
+
   } catch (err) {
-    console.error(err)
+    console.error(err); // Log the error in case of failure
   }
 }
+
 
 onMounted(fetchTicket)
 </script>

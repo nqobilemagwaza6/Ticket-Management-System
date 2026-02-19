@@ -97,32 +97,42 @@ function handleFileUpload(event) {
 }
 
 async function submitTicket() {
-  if (description.value.length < 30) {
-    alert('Description must be at least 30 characters.')
-    return
-  }
-
-  const formData = new FormData()
-  formData.append('title', title.value)
-  formData.append('category', category.value)
-  formData.append('description', description.value)
-  if (attachment.value) formData.append('attachment', attachment.value)
-
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/tickets/', {
-      method: 'POST',
-      credentials: 'include',
-      body: formData
-    })
-    if (!res.ok) throw new Error('Failed to create ticket')
 
-    alert('Ticket created successfully')
-    router.push('/employee-dashboard')
+
+    // Prepare the form data to send in the POST request
+    const formData = new FormData();
+    formData.append('title', title.value);
+    formData.append('category', category.value);
+    formData.append('description', description.value);
+    if (attachment.value) formData.append('attachment', attachment.value);
+    const token = localStorage.getItem('token');
+    // Send POST request to create a new ticket
+    const res = await fetch('http://127.0.0.1:8000/api/create_ticket/', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${token}` // Use the token for authentication
+      },
+      body: formData
+    });
+
+    // Handle response
+    if (res.ok) {
+      const data = await res.json();
+      alert('Ticket created successfully');
+      router.push({ name: 'EmployeeDashboard' }); // Redirect to the dashboard
+    } else {
+      const data = await res.json();
+      console.error(data);
+      alert('Failed to create ticket. Please try again.');
+    }
+
   } catch (err) {
-    console.error(err)
-    alert('Failed to create ticket.')
+    console.error(err);
+    alert('An error occurred while creating the ticket.');
   }
 }
+
 </script>
 
 <style scoped>

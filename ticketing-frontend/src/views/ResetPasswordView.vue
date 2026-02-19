@@ -6,10 +6,6 @@
         Enter a new password below to change your password.
       </p>
 
-      <!-- Error Message -->
-      <div v-if="error" class="alert alert-danger text-center">
-        {{ error }}
-      </div>
 
       <form @submit.prevent="handleReset">
         <!-- New Password -->
@@ -72,14 +68,15 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { showSuccess, showError } from '@/utils/alerts'
 
 const router = useRouter()
 const route = useRoute()
 
+
 // Form state
 const newPassword = ref('')
 const confirmPassword = ref('')
-const error = ref('')
 const submitting = ref(false)
 
 // Route params
@@ -95,13 +92,22 @@ const hasRequirements = computed(() => {
   const count = [hasLower.value, hasUpper.value, hasNumber.value, hasSpecial.value].filter(Boolean).length
   return count >= 3
 })
-const isFormValid = computed(() => hasMinLength.value && hasRequirements.value && newPassword.value === confirmPassword.value)
+// Form validity
+const isFormValid = computed(() => hasMinLength.value && 
+hasRequirements.value && 
+newPassword.value === confirmPassword.value)
 
 // Handle password reset
 const handleReset = async () => {
-  error.value = ''
-  submitting.value = true
-
+ if (!isFormValid.value) {
+    await showError(
+      'Invalid Password',
+      'Please meet all password requirements and ensure both fields match.'
+    )
+    return
+  }
+  // Set submitting state to disable button and show spinner
+submitting.value = true
   try {
     const response = await fetch('http://127.0.0.1:8000/api/reset-password/', {
       method: 'POST',
@@ -110,14 +116,21 @@ const handleReset = async () => {
     })
 
     if (!response.ok) {
-      const data = await response.json()
-      throw new Error(data.detail || 'Failed to reset password')
+      const data = await response.json().catch(() => ({}))
+      throw new Error(data.detail || 'Invalid or expired reset link.')
     }
-
+     await showSuccess(
+      'Password Reset Successful',
+      'Your password has been updated. You can now log in.'
+    )
     // Redirect to login page with success message
-    router.push({ name: 'Login', query: { resetSuccess: 'true' } })
-  } catch (err) {
-    error.value = err.message || 'Something went wrong.'
+    router.push({ name: 'Login'  })
+  } 
+  catch (err) {
+    await showError(
+      'Reset Failed',
+      err.message || 'Something went wrong.'
+    )
   } finally {
     submitting.value = false
   }

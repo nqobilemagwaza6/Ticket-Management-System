@@ -154,26 +154,26 @@
             </thead>
             <tbody>
               <tr v-for="ticket in recentTickets" :key="ticket.id">
-                <td><span class="fw-medium">#{{ ticket.id }}</span></td>
-                <td>{{ ticket.title }}</td>
-                <td>{{ ticket.category }}</td>
-                <td>
+                <td data-label="ID"><span class="fw-medium">#{{ ticket.id }}</span></td>
+                <td data-label="Title">{{ ticket.title }}</td>
+                <td data-label="Category">{{ ticket.category }}</td>
+                <td data-label="Status">
                   <span class="badge" :class="getStatusBadgeClass(ticket.status)">
                     {{ ticket.status }}
                   </span>
                 </td>
-                <td>
+                <td data-label="Priority">
                   <span class="badge" :class="getPriorityBadgeClass(ticket.priority)">
                     {{ ticket.priority }}
                   </span>
                 </td>
-                <td>{{ ticket.user }}</td>
-                <td>
+                <td data-label="User">{{ ticket.user }}</td>
+                <td data-label="Assigned Agent">
                   <span v-if="ticket.agent">{{ ticket.agent }}</span>
                   <span v-else class="text-muted fst-italic">Unassigned</span>
                 </td>
-                <td>{{ formatDate(ticket.created_at) }}</td>
-                <td>
+                <td data-label="Created">{{ formatDate(ticket.created_at) }}</td>
+                <td data-label="Actions">
                   <button class="btn btn-sm btn-link text-primary p-0 me-2" @click="viewTicket(ticket.id)">
                     <i class="bi bi-eye"></i>
                   </button>
@@ -566,5 +566,17 @@ onMounted(() => {
 
 .btn-link:hover {
   background: rgba(0,0,0,0.02);
+}
+
+/* Responsive stacked rows for dashboard recent-tickets table and layout */
+@media (max-width: 576px) {
+  .table thead { display: none; }
+  .table, .table tbody, .table tr, .table td { display: block; width: 100%; }
+  .table tr { margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.04); padding: 8px; border-radius: 8px; }
+  .table td { display: flex; justify-content: space-between; padding: 8px 12px; border: none; }
+  .table td::before { content: attr(data-label); font-weight: 600; color: #6b7280; margin-right: 12px; }
+  .stats-card .stats-icon { width: 40px; height: 40px; }
+  .row .col-md-6 { width: 100%; }
+  .card-header .btn { margin-top: 8px; }
 }
 </style>

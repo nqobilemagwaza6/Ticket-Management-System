@@ -58,41 +58,52 @@
 </template>
 
 <script setup>
+// Importing  necessary modules and components
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AuthLayout from '@/components/AuthLayout.vue'
+import { showSuccess, showError } from '@/utils/alerts'
 
-const router = useRouter()
-
+// Reactive state variables
+const router = useRouter() 
 const email = ref('')
 const password = ref('')
-const error = ref('')
 const submitting = ref(false)
 
 async function loginUser() {
-  error.value = ''
+   // Frontend validation
+  if (!email.value.trim() || !password.value.trim()) {
+    await showError('Validation Error', 'Email and password are required.')
+    return
+  } 
+  // Set submitting state to disable button and show spinner
   submitting.value = true
 
-  try {
+  try {// Send login request to backend
     const response = await fetch('http://127.0.0.1:8000/api/login/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ email: email.value.trim(), password: password.value })
+      body: JSON.stringify({
+        email: email.value.trim(),
+        password: password.value
+      })
     })
-
+// Check for HTTP errors
     if (!response.ok) {
       const data = await response.json().catch(() => ({}))
       throw new Error(data.message || 'Invalid email or password.')
     }
-
+// Parse response data
     const data = await response.json()
-    if (!data.user) throw new Error(data.message || 'Invalid email or password.')
-
-    // Saves user info for UI purposes only
-    localStorage.setItem('token', data.token)
+    if (!data.user) {
+    throw new Error(data.message || 'Invalid email or password.')
+  }
+// Store user info and authentication status
     localStorage.setItem('user', JSON.stringify(data.user))
     localStorage.setItem('isAuthenticated', 'true')
+// Show success alert
+    await showSuccess('Login Successful', 'Welcome back!')
 
     // Redirect based on role using route names
     if (data.user.role === 'admin') {
@@ -102,10 +113,10 @@ async function loginUser() {
     } else {
       router.push({ name: 'EmployeeDashboard' })     // Regular user dashboard
     }
-
-  } catch (err) {
-    error.value = err.message || 'Login failed. Please try again.'
-  } finally {
+// Handle errors
+  } catch (err) { // Show error alert with specific message
+    await showError('Authentication Failed', err.message || 'Login failed.')
+  } finally { // Ensure submitting state is reset
     submitting.value = false
   }
 }
