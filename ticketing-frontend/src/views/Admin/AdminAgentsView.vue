@@ -76,7 +76,7 @@
                 <td>
                   <div class="d-flex align-items-center">
                     <div class="avatar-circle me-2" :class="'bg-' + getAvatarColor(agent.id)">
-                      {{ agent.name.charAt(0) }}
+                      {{ (agent.name || agent.first_name || '?').charAt(0).toUpperCase() }}
                     </div>
                     {{ agent.name }}
                   </div>
@@ -108,9 +108,9 @@
                     <button class="btn btn-sm btn-outline-info" @click="viewAgentTickets(agent)">
                       <i class="bi bi-ticket"></i>
                     </button> 
-                    <button class="btn btn-sm" :class="agent.active ? 'btn-outline-warning' : 'btn-outline-success'" @click="toggleAgentStatus(agent)">
-                      <i :class="agent.active ? 'bi bi-pause-circle' : 'bi bi-play-circle'"></i>
-                    </button> 
+                  <button class="btn btn-sm" :class="agent.active ? 'btn-outline-warning' : 'btn-outline-success'" @click="toggleAgentStatus(agent)">
+                    <i :class="agent.active ? 'bi bi-pause-circle' : 'bi bi-play-circle'"></i>
+                  </button> 
                   </div> 
                 </td>
               </tr>
@@ -219,6 +219,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { Modal } from 'bootstrap'
+import Swal from 'sweetalert2'
 
 // State
 const agents = ref([])
@@ -302,10 +303,36 @@ function saveAgent() {
   agentModal.hide()
 }
 
-function toggleAgentStatus(agent) {
-  agent.active = !agent.active
-  updateStats()
+async function toggleAgentStatus(agent) {
+  try {
+    const token = localStorage.getItem('token')
+    const res = await fetch(`http://127.0.0.1:8000/api/deactivate_user/${agent.id}/`, {
+      method: 'POST',  // POST request to deactivate/activate the agent
+      headers: {
+        'Authorization': `Token ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    const data = await res.json()
+
+    if (res.ok) {
+      agent.active = data.is_active // Update agent's active status based on the response
+      Swal.fire({
+        icon: 'success',
+        title: `Agent ${agent.active ? 'Activated' : 'Deactivated'}`,
+        text: `${agent.name} is now ${agent.active ? 'Active' : 'Inactive'}`,
+        timer: 2000,
+        showConfirmButton: false
+      })
+    } else {
+      console.error('Failed to update agent status:', data)
+    }
+  } catch (e) {
+    console.error('Error toggling agent status:', e)
+  }
 }
+
 
 function viewAgentTickets(agent) {
   // Populate modal with tickets assigned to this agent and unassigned tickets
@@ -354,6 +381,7 @@ function downloadCSV(filename, columns, data) {
   document.body.removeChild(a)
   URL.revokeObjectURL(url)
 }
+    
 
 function updateStats() {
   stats.value.totalAgents = agents.value.length
@@ -380,71 +408,43 @@ function assignTicketToAgent(ticket) {
 // Load data
 async function loadAgents() {
   try {
-    agents.value = [
-      { 
-        id: 1, 
-        name: 'John Doe', 
-        email: 'john@example.com', 
-        active: true,
-        department: 'IT Support',
-        ticketCount: 8,
-        resolvedCount: 45,
-        inProgressCount: 3,
-        resolutionRate: 92,
-        avgResponseTime: 2.5,
-        performance: 95,
-        maxTickets: 10
-      },
-      { 
-        id: 2, 
-        name: 'Jane Smith', 
-        email: 'jane@example.com', 
-        active: true,
-        department: 'Network',
-        ticketCount: 6,
-        resolvedCount: 38,
-        inProgressCount: 2,
-        resolutionRate: 88,
-        avgResponseTime: 3.2,
-        performance: 85,
-        maxTickets: 8
-      },
-      { 
-        id: 3, 
-        name: 'Mike Johnson', 
-        email: 'mike@example.com', 
-        active: true,
-        department: 'Hardware',
-        ticketCount: 10,
-        resolvedCount: 52,
-        inProgressCount: 5,
-        resolutionRate: 94,
-        avgResponseTime: 4.1,
-        performance: 90,
-        maxTickets: 12
-      },
-      { 
-        id: 4, 
-        name: 'Sarah Williams', 
-        email: 'sarah@example.com', 
-        active: false,
-        department: 'Software',
-        ticketCount: 0,
-        resolvedCount: 28,
-        inProgressCount: 0,
-        resolutionRate: 82,
-        avgResponseTime: 5.0,
-        performance: 75,
-        maxTickets: 8
+    const token = localStorage.getItem('token')
+    const res = await fetch('http://127.0.0.1:8000/api/users_list/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
       }
-    ]
+    })
     
+    const data = await res.json()
+    if (!res.ok) {
+      console.error('Error fetching agents:', data)
+      return
+    }
+
+    // Only include support agents
+    agents.value = data.filter(user => user.role === 'Support')
+
+    // Add missing fields for table calculations
+    agents.value = agents.value.map(a => ({
+      ticketCount: 0,
+      resolvedCount: 0,
+      inProgressCount: 0,
+      resolutionRate: 0,
+      avgResponseTime: 0,
+      performance: 0,
+      maxTickets: 10,
+      active: a.is_active ?? true,
+      ...a
+    }))
+
     updateStats()
-    
   } catch (error) {
     console.error('Error loading agents:', error)
   }
 }
+
 
 // Load mock tickets for assignment modal
 async function loadMockTickets() {
