@@ -20,14 +20,14 @@
         </thead>
         <tbody>
           <tr v-for="(ticket, index) in tickets" :key="ticket.id">
-            <td>{{ index + 1 }}</td>
-            <td>
+            <td data-label="#">{{ index + 1 }}</td>
+            <td data-label="Title">
               <router-link :to="`/tickets/${ticket.id}`" class="ticket-link">
                 {{ ticket.title }}
               </router-link>
             </td>
-            <td>{{ ticket.category || '—' }}</td>
-            <td>
+            <td data-label="Category">{{ ticket.category || '—' }}</td>
+            <td data-label="Status">
               <span
                 class="badge"
                 :class="{
@@ -39,9 +39,9 @@
                 {{ ticket.status }}
               </span>
             </td>
-            <td>{{ ticket.assigned_to || 'Unassigned' }}</td>
-            <td>{{ formatDate(ticket.created_at) }}</td>
-            <td>
+            <td data-label="Assigned Agent">{{ ticket.assigned_to || 'Unassigned' }}</td>
+            <td data-label="Created At">{{ formatDate(ticket.created_at) }}</td>
+            <td data-label="Action">
               <router-link :to="`/tickets/${ticket.id}`" class="btn btn-sm btn-outline-brand">
                 View
               </router-link>
@@ -128,5 +128,16 @@ function formatDate(dateStr) {
 /* Responsive table */
 .table-responsive {
   border-radius: 0.5rem;
+}
+
+/* Small-screen stacked rows */
+@media (max-width: 576px) {
+  .table thead { display: none; }
+  .table, .table tbody, .table tr, .table td { display: block; width: 100%; }
+  .table tr { margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.04); padding: 8px; border-radius: 8px; }
+  .table td { display: flex; justify-content: space-between; padding: 8px 12px; border: none; }
+  .table td::before { content: attr(data-label); font-weight: 600; color: #6b7280; margin-right: 12px; }
+  .ticket-link { display: inline-block; max-width: 60%; }
+  .btn-outline-brand { padding: 6px 8px; font-size: 0.85rem; }
 }
 </style>

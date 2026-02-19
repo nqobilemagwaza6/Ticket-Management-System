@@ -99,30 +99,30 @@
             </thead>
             <tbody>
               <tr v-for="ticket in filteredTickets" :key="ticket.id">
-                <td>
+                <td data-label="Select">
                   <div class="form-check">
                     <input class="form-check-input" type="checkbox" v-model="selectedTickets" :value="ticket.id">
                   </div>
                 </td>
-                <td><span class="fw-medium">#{{ ticket.id }}</span></td>
-                <td>
+                <td data-label="ID"><span class="fw-medium">#{{ ticket.id }}</span></td>
+                <td data-label="Title">
                   <router-link :to="`/admin/tickets/${ticket.id}`" class="text-decoration-none">
                     {{ ticket.title }}
                   </router-link>
                 </td>
-                <td>{{ ticket.user }}</td>
-                <td>{{ ticket.category }}</td>
-                <td>
+                <td data-label="User">{{ ticket.user }}</td>
+                <td data-label="Category">{{ ticket.category }}</td>
+                <td data-label="Status">
                   <span class="badge" :class="getStatusBadgeClass(ticket.status)">
                     {{ ticket.status }}
                   </span>
                 </td>
-                <td>
+                <td data-label="Priority">
                   <span class="badge" :class="getPriorityBadgeClass(ticket.priority)">
                     {{ ticket.priority }}
                   </span>
                 </td>
-                <td>
+                <td data-label="Assigned Agent">
                   <span v-if="ticket.agent" class="d-flex align-items-center gap-2">
                     {{ ticket.agent }}
                     <button class="btn btn-sm btn-link text-warning p-0" @click="reassignTicket(ticket)">
@@ -136,9 +136,9 @@
                     </button>
                   </span>
                 </td>
-                <td>{{ formatDate(ticket.created_at) }}</td>
-                <td>{{ formatDate(ticket.updated_at) }}</td>
-                <td>
+                <td data-label="Created">{{ formatDate(ticket.created_at) }}</td>
+                <td data-label="Last Updated">{{ formatDate(ticket.updated_at) }}</td>
+                <td data-label="Actions">
                   <div class="btn-group">
                     <button class="btn btn-sm btn-outline-primary" @click="viewTicket(ticket.id)">
                       <i class="bi bi-eye"></i>
@@ -588,5 +588,13 @@ onMounted(() => {
 
 .page-link {
   padding: 0.375rem 0.75rem;
+}
+/* Responsive stacked rows for tickets table on small screens */
+@media (max-width: 576px) {
+  .table thead { display: none; }
+  .table, .table tbody, .table tr, .table td { display: block; width: 100%; }
+  .table tr { margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.04); padding: 8px; border-radius: 8px; }
+  .table td { display: flex; justify-content: space-between; padding: 8px 12px; border: none; }
+  .table td::before { content: attr(data-label); font-weight: 600; color: #6b7280; margin-right: 12px; }
 }
 </style>

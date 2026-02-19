@@ -1,43 +1,50 @@
 <template>
   <div class="col-md-3 mb-3">
-    <div class="card shadow-sm p-3 text-center border-0" :class="cardClass">
-      <h6 class="text-uppercase mb-2">{{ label }}</h6>
-      <h3 class="fw-bold mb-0">{{ value }}</h3>
+  <div class="card stat-shadow shadow-sm p-3 text-center border-4">
+      <h6 >{{ label }}</h6>
+      <h3> {{ value }}</h3>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-
 const props = defineProps({
   label: { type: String, required: true },
   value: { type: Number, required: true }
-})
-
-const cardClass = computed(() => {
-  switch (props.label) {
-    case 'ASSIGNED TICKETS':
-      return 'bg-primary text-white'
-    case 'OPEN':
-      return 'bg-success text-white'
-    case 'IN PROGRESS':
-      return 'bg-warning text-dark'
-    case 'RESOLVED':
-      return 'bg-secondary text-white'
-    default:
-      return 'bg-light'
-  }
 })
 </script>
 
 <style scoped>
 .card {
   border-radius: 1rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+  background-color: #ffffff; /* white card */
+  color: #000000; /* black text */
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-.card:hover {
+
+/* Orange accent shadow */
+.stat-shadow {
+  box-shadow: 0 6px 15px rgba(235, 94, 40, 0.35);
+}
+
+/* Hover effect */
+.stat-shadow:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.12) !important;
+  box-shadow: 0 14px 30px rgba(235, 94, 40, 0.55);
+}
+
+/* Label text */
+.stat-shadow h6 {
+  font-size: 0.85rem;
+  letter-spacing: 0.7px;
+  opacity: 0.8;
+  margin-bottom: 0.25rem;
+}
+
+/* Number */
+.stat-shadow h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
 }
 </style>
