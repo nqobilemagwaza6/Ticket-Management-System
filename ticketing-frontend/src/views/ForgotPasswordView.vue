@@ -5,10 +5,7 @@
         <img src="@/assets/logo.png" alt="TMS Logo" class="mb-2 logo">
         <h4 class="fw-bold">Forgot Password</h4>
         <p class="text-muted small">Enter your email and we'll send you a reset link.</p>
-      </div>
-
-      <div v-if="error" class="alert alert-danger py-2 text-center">{{ error }}</div>
-      <div v-if="success" class="alert alert-success py-2 text-center">{{ success }}</div>
+      </div>   
 
       <form @submit.prevent="onSubmit">
         <div class="mb-4">
@@ -37,15 +34,18 @@
 
 <script setup>
 import { ref } from 'vue'
+import { showInfo, showError } from '@/utils/alerts'
 
 const email = ref('')
-const error = ref('')
-const success = ref('')
 const submitting = ref(false)
 
 async function onSubmit() {
-  error.value = ''
-  success.value = ''
+  // Basic validation 
+ if (!email.value.trim()) {
+    await showError('Validation Error', 'Email is required.')
+    return
+  }
+  // Set submitting state to disable button and show spinner
   submitting.value = true
 
   try {
@@ -55,12 +55,18 @@ async function onSubmit() {
       body: JSON.stringify({ email: email.value.trim() })
     })
 
-    if (!res.ok) throw new Error('Could not find an account with that email.')
-
-    success.value = 'If an account exists, a reset link has been sent!'
-    email.value = ''
-  } catch (err) {
-    error.value = err.message || 'Operation failed'
+    // Always show same message
+    await showInfo(
+      'Request Sent',
+      'If an account exists with this email, a reset link has been sent.'
+    )
+       email.value = ''
+  // Reset form and state 
+  } catch {
+   await showInfo(
+      'Request Sent',
+      'If an account exists with this email, a reset link has been sent.'
+    )
   } finally {
     submitting.value = false
   }
