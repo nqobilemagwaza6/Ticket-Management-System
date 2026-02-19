@@ -261,6 +261,9 @@ a:hover {
   background-color: var(--primary-yellow) !important;
   color: var(--dark-gray) !important;
 }
+.bg-accent-orange {
+  background-color: var(--accent-orange) !important;
+}
 
 .badge.bg-primary {
   background-color: var(--accent-orange) !important;
