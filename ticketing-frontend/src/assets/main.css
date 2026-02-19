@@ -1,0 +1,341 @@
+/* ===============================
+   GLOBAL STYLES
+=================================*/
+
+:root {
+  --primary-yellow: #FFFC2;
+  --light-gray: #CCC5B9;
+  --medium-gray: #403D39;
+  --dark-gray: #252422;
+  --accent-orange: #EB5E28;
+  --white: #ffffff;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 15px 35px rgba(235, 94, 40, 0.12);
+}
+
+body {
+  font-family: 'Inter', Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f8f9fa;
+  color: var(--dark-gray);
+}
+
+/* ===============================
+   AUTH LAYOUT (as shown in your image)
+=================================*/
+
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fb, #eef2f7);
+  padding: 20px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 45px;
+  border-radius: 16px;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  transition: 0.3s ease-in-out;
+  border: 1px solid rgba(204, 197, 185, 0.2);
+}
+
+.auth-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Logo */
+.auth-logo {
+  width: 90px;
+  margin-bottom: 24px;
+}
+
+/* Form controls */
+.form-control {
+  border-radius: 12px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--light-gray);
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: var(--accent-orange);
+  box-shadow: 0 0 0 3px rgba(235, 94, 40, 0.1);
+  outline: none;
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--dark-gray);
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--accent-orange);
+  border-color: var(--accent-orange);
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 14px;
+  color: var(--white);
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #d64e1f;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(235, 94, 40, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background-color: var(--light-gray);
+  border-color: var(--light-gray);
+  color: var(--dark-gray);
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 14px;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: var(--medium-gray);
+  border-color: var(--medium-gray);
+  color: var(--white);
+}
+
+/* Links */
+a {
+  color: var(--accent-orange);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: #d64e1f;
+  text-decoration: underline;
+}
+
+/* Alerts */
+.alert {
+  border-radius: 12px;
+  font-size: 14px;
+  padding: 16px;
+  border: none;
+}
+
+.alert-danger {
+  background-color: rgba(235, 94, 40, 0.1);
+  color: var(--accent-orange);
+}
+
+.alert-success {
+  background-color: rgba(255, 252, 44, 0.1);
+  color: var(--dark-gray);
+}
+
+/* ===============================
+   DASHBOARD STYLES
+=================================*/
+
+/* Navbar customization */
+.navbar {
+  background-color: var(--dark-gray) !important;
+  padding: 16px 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  color: var(--primary-yellow) !important;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+/* Welcome section */
+.welcome-section {
+  margin-bottom: 32px;
+}
+
+.welcome-section h2 {
+  color: var(--dark-gray);
+  font-weight: 700;
+}
+
+.welcome-section p {
+  color: var(--medium-gray);
+}
+
+/* Stats Cards */
+.stat-card {
+  background: var(--white);
+  border: 1px solid rgba(204, 197, 185, 0.3);
+  border-radius: 16px;
+  padding: 24px 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(235, 94, 40, 0.1);
+  border-color: var(--accent-orange);
+}
+
+.stat-card h6 {
+  color: var(--medium-gray);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.stat-card h3 {
+  color: var(--dark-gray);
+  font-weight: 700;
+  font-size: 32px;
+  margin: 0;
+}
+
+/* Cards */
+.card {
+  border: 1px solid rgba(204, 197, 185, 0.2);
+  border-radius: 16px;
+  background: var(--white);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05) !important;
+}
+
+.card-header {
+  background-color: transparent;
+  border-bottom: 1px solid rgba(204, 197, 185, 0.2);
+  padding: 20px 24px;
+}
+
+.card-body {
+  padding: 24px;
+}
+
+/* Tables */
+.table {
+  color: var(--dark-gray);
+}
+
+.table thead th {
+  border-bottom: 2px solid var(--light-gray);
+  color: var(--medium-gray);
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table td {
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(204, 197, 185, 0.2);
+}
+
+/* Badges */
+.badge {
+  padding: 8px 12px;
+  border-radius: 30px;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.badge.bg-warning {
+  background-color: var(--primary-yellow) !important;
+  color: var(--dark-gray) !important;
+}
+
+.badge.bg-primary {
+  background-color: var(--accent-orange) !important;
+  color: var(--white) !important;
+}
+
+.badge.bg-success {
+  background-color: #28a745 !important;
+  color: var(--white) !important;
+}
+
+/* Buttons */
+.btn-outline-primary {
+  color: var(--accent-orange);
+  border-color: var(--accent-orange);
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--accent-orange);
+  border-color: var(--accent-orange);
+  color: var(--white);
+}
+
+/* Forms in create ticket */
+.form-select {
+  border-radius: 12px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--light-gray);
+}
+
+.form-select:focus {
+  border-color: var(--accent-orange);
+  box-shadow: 0 0 0 3px rgba(235, 94, 40, 0.1);
+}
+
+textarea.form-control {
+  min-height: 120px;
+}
+
+/* Timeline/Ticket Activity */
+.timeline-item {
+  border-left: 3px solid var(--light-gray);
+  padding: 16px 0 16px 24px;
+  position: relative;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -9px;
+  top: 24px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--accent-orange);
+  border: 3px solid var(--white);
+}
+
+.timeline-item:last-child {
+  border-left-color: transparent;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .auth-card {
+    padding: 30px 20px;
+  }
+  
+  .stat-card {
+    padding: 16px;
+  }
+  
+  .stat-card h3 {
+    font-size: 24px;
+  }
+}

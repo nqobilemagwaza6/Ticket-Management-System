@@ -1,16 +1,16 @@
 <template>
-  <div id="app">
-    <h1>Ticketing System Test</h1>
-    <ConnectButton />
-  </div>
+  <router-view />
 </template>
 
-<script>
-import ConnectButton from './components/HelloWorld.vue'
+<script setup>
 
-export default {
-  components: {
-    ConnectButton
-  }
-}
 </script>
+
+<style>
+
+body {
+  background-color: #f5f7fb;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+</style>
