@@ -42,9 +42,12 @@
             <td>{{ ticket.assigned_to || 'Unassigned' }}</td>
             <td>{{ formatDate(ticket.created_at) }}</td>
             <td>
-              <router-link :to="`/tickets/${ticket.id}`" class="btn btn-sm btn-outline-brand">
-                View
-              </router-link>
+                <button
+              class="btn btn-sm btn-outline-brand"
+              @click.stop="selectTicket(ticket)"
+            >
+              View
+            </button>
             </td>
           </tr>
           <tr v-if="!tickets.length">
@@ -58,12 +61,19 @@
   </div>
 </template>
 
+
 <script setup>
-import { defineProps } from 'vue'
+import { defineProps, defineEmits } from 'vue'
 
 const props = defineProps({
   tickets: { type: Array, default: () => [] }
 })
+
+const emit = defineEmits(['view-ticket'])
+
+function selectTicket(ticket) {
+  emit('view-ticket', ticket)
+}
 
 function formatDate(dateStr) {
   if (!dateStr) return ''
@@ -74,6 +84,8 @@ function formatDate(dateStr) {
   })
 }
 </script>
+
+
 
 <style scoped>
 .card {
