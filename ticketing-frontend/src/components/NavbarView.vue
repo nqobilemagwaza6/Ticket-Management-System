@@ -39,7 +39,7 @@ const API_BASE = 'https://ticketing-backend-1-mylx.onrender.com'
 
 const logout = async () => {
   try {
-    await fetch('${API_BASE}/api/logout/', {
+    await fetch(`${API_BASE}/api/logout/`, {
       method: 'POST',
       credentials: 'include'
     })

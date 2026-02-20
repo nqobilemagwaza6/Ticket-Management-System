@@ -109,7 +109,7 @@ async function submitTicket() {
     if (attachment.value) formData.append('attachment', attachment.value);
     const token = localStorage.getItem('token');
     // Send POST request to create a new ticket
-    const res = await fetch('${API_BASE}/api/create_ticket/', {
+    const res = await fetch(`${API_BASE}/api/create_ticket/`, {
       method: 'POST',
       headers: {
         'Authorization': `Token ${token}` // Use the token for authentication

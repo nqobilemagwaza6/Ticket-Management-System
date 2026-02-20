@@ -51,7 +51,7 @@ async function onSubmit() {
   submitting.value = true
 
   try {
-    const res = await fetch('${API_BASE}/api/forgot-password/', {
+    const res = await fetch(`${API_BASE}/api/forgot-password/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email.value.trim() })

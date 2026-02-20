@@ -132,7 +132,7 @@ async function fetchAssignedTickets() {
   loading.value = true
   try {
     const token = localStorage.getItem('token')
-    const res = await fetch('${API_BASE}/api/assigned_tickets/', {
+    const res = await fetch(`${API_BASE}/api/assigned_tickets/`, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Token ${token}`

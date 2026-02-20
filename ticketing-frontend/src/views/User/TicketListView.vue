@@ -190,7 +190,7 @@ function formatDate(dateStr) {
 
 async function fetchTickets() {
   try {
-    const res = await fetch('${API_BASE}/api/tickets/', {
+    const res = await fetch(`${API_BASE}/api/tickets/`, {
       credentials: 'include'
     })
     if (!res.ok) throw new Error('Failed to fetch tickets')

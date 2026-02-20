@@ -112,7 +112,7 @@ function formatDate(dateStr) {
 async function fetchTickets() {
     const token = localStorage.getItem('token');
   try {
-    const res = await fetch('${API_BASE}/api/tickets/', {
+    const res = await fetch(`${API_BASE}/api/tickets/`, {
        method: 'GET',
       credentials: 'include',
       headers: {

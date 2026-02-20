@@ -331,7 +331,7 @@ async function saveUser() {
     })
 
     // Send POST request
-    const res = await fetch('${API_BASE}/api/admin_create_user/', {
+    const res = await fetch(`${API_BASE}/api/admin_create_user/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -499,7 +499,7 @@ function resetFilters() {
 async function fetchUsers() {
   try {
     const token = localStorage.getItem('token')
-    const res = await fetch('${API_BASE}/api/users_list/', {
+    const res = await fetch(`${API_BASE}/api/users_list/`, {
       headers: { 'Authorization': `Token ${token}` }
     })
     const data = await res.json()

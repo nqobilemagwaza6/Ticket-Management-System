@@ -416,7 +416,7 @@ function assignTicketToAgent(ticket) {
 async function loadAgents() {
   try {
     const token = localStorage.getItem('token')
-    const res = await fetch('${API_BASE}/api/users_list/', {
+    const res = await fetch(`${API_BASE}/api/users_list/`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

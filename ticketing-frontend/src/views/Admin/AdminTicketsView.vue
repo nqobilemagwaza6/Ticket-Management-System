@@ -504,7 +504,7 @@ function changePage(page){ pagination.value.page=page }
 async function loadTickets(){
   try{
     const token=localStorage.getItem('token')
-    const res=await fetch('${API_BASE}/api/tickets/',{
+    const res=await fetch(`${API_BASE}/api/tickets/`,{
       method:'GET',
       headers:{'Authorization':`Token ${token}`,'Content-Type':'application/json'}
     })
@@ -526,7 +526,7 @@ async function loadTickets(){
 async function loadAgents() {
   try {
     const token = localStorage.getItem('token');
-    const res = await fetch('${API_BASE}/api/users_list/', {
+    const res = await fetch(`${API_BASE}/api/users_list/`, {
       headers: { 'Authorization': `Token ${token}`, 'Content-Type': 'application/json' },
     });
     if (!res.ok) throw new Error('Agents fetch failed');
