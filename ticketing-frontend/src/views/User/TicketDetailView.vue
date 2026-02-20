@@ -18,19 +18,24 @@
           <p class="description-text">{{ ticket.description }}</p>
         </div>
 
+        <!-- Display attachment if exists -->
+        <div v-if="ticket.attachment" class="attachment-section mb-4">
+          <p class="text-muted mb-2">Attachment:</p>
+          <a :href="ticket.attachment" target="_blank" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-paperclip"></i> {{ ticket.filename || 'View Attachment' }}
+          </a>
+        </div>
+
         <div class="ticket-meta">
           <div class="row">
             <div class="col-md-6">
               <div class="meta-item">
                 <strong>Category:</strong> {{ ticket.category }}
               </div>
-              <div class="meta-item">
-                <strong>Priority:</strong> {{ ticket.priority }}
-              </div>
             </div>
             <div class="col-md-6">
               <div class="meta-item">
-                <strong>Assigned Agent:</strong> {{ ticket.assigned_to || 'Unassigned' }}
+                <strong>Assigned Agent:</strong> {{ ticket.agent || 'Unassigned' }}
               </div>
               <div class="meta-item">
                 <strong>Created:</strong> {{ formatDate(ticket.created_at) }}
@@ -53,7 +58,7 @@
           <div v-for="comment in comments" :key="comment.id" class="comment-item">
             <div class="d-flex justify-content-between align-items-start">
               <div class="comment-author">
-                <strong>{{ comment.user_email || 'user@example.com' }}</strong>
+                <strong>{{ comment.user_full_name || comment.user_email }}</strong>
               </div>
               <div class="comment-date text-muted small">
                 {{ formatDate(comment.created_at) }}
@@ -62,29 +67,8 @@
             <p class="comment-text mt-2">{{ comment.text }}</p>
           </div>
           
-          <!-- Sample comments for demo -->
-          <div class="comment-item">
-            <div class="d-flex justify-content-between align-items-start">
-              <div class="comment-author">
-                <strong>admin@example.com</strong>
-              </div>
-              <div class="comment-date text-muted small">
-                5/17/2023
-              </div>
-            </div>
-            <p class="comment-text mt-2">Comment 1 for Ticket 1</p>
-          </div>
-          
-          <div class="comment-item">
-            <div class="d-flex justify-content-between align-items-start">
-              <div class="comment-author">
-                <strong>user1@example.com</strong>
-              </div>
-              <div class="comment-date text-muted small">
-                5/17/2023
-              </div>
-            </div>
-            <p class="comment-text mt-2">Comment 2 for Ticket 1</p>
+          <div v-if="comments.length === 0" class="text-center py-4 text-muted">
+            No comments yet. Be the first to comment!
           </div>
         </div>
 
@@ -96,7 +80,7 @@
             placeholder="Add a comment..."
             v-model="newComment"
           ></textarea>
-          <button class="btn btn-primary" @click="submitComment">
+          <button class="btn btn-primary" @click="submitComment" :disabled="!newComment.trim()">
             Add comment
           </button>
         </div>
@@ -130,46 +114,93 @@ function getStatusClass(status) {
 function formatDate(dateStr) {
   if (!dateStr) return ''
   const date = new Date(dateStr)
-  return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
 
-function submitComment() {
+async function submitComment() {
   if (!newComment.value.trim()) return
-  // Add comment logic here
-  alert('Comment added (demo)')
-  newComment.value = ''
+
+  const token = localStorage.getItem('token')
+
+  const res = await fetch(
+    `http://127.0.0.1:8000/api/tickets/${route.params.id}/comments/`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        text: newComment.value
+      })
+    }
+  )
+
+  if (res.ok) {
+    newComment.value = ''
+    fetchComments()
+  } else {
+    const error = await res.json()
+    console.error('Failed to post comment:', error)
+    alert('Failed to post comment')
+  }
+}
+
+async function fetchComments() {
+  const token = localStorage.getItem('token')
+
+  const res = await fetch(
+    `http://127.0.0.1:8000/api/tickets/${route.params.id}/comments/`,
+    {
+      headers: {
+        'Authorization': `Token ${token}`
+      }
+    }
+  )
+
+  if (res.ok) {
+    comments.value = await res.json()
+  } else {
+    console.error('Failed to fetch comments')
+  }
 }
 
 async function fetchTicket() {
   try {
-    const token = localStorage.getItem('token'); // Get the token from localStorage
+    const token = localStorage.getItem('token');
     
-    // If the token doesn't exist, exit the function
     if (!token) {
       console.error("No token found");
       return;
     }
 
     const res = await fetch(`http://127.0.0.1:8000/api/tickets/${route.params.id}/`, {
-      method: 'GET', // Use GET method to fetch ticket details
-      credentials: 'include', // This includes cookies (session info)
       headers: {
-        'Authorization': `Token ${token}`, // Include the token in the Authorization header
-        'Content-Type': 'application/json' // Ensure content type is JSON
+        'Authorization': `Token ${token}`,
+        'Content-Type': 'application/json'
       }
     });
 
-    if (!res.ok) throw new Error('Failed to fetch ticket'); // Error if response is not OK
+    if (!res.ok) throw new Error('Failed to fetch ticket');
 
-    ticket.value = await res.json(); // Parse the response JSON and set it to the ticket data
+    ticket.value = await res.json();
 
   } catch (err) {
-    console.error(err); // Log the error in case of failure
+    console.error(err);
   }
 }
 
-
-onMounted(fetchTicket)
+// Single onMounted call with both functions
+onMounted(() => {
+  fetchTicket()
+  fetchComments()
+})
 </script>
 
 <style scoped>
@@ -218,6 +249,10 @@ onMounted(fetchTicket)
   font-size: 15px;
   line-height: 1.6;
   color: #374151;
+}
+
+.attachment-section {
+  margin-top: 16px;
 }
 
 .meta-item {
@@ -277,5 +312,10 @@ onMounted(fetchTicket)
 
 .btn-primary:hover {
   background-color: #d04f1f;
+}
+
+.btn-primary:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 </style>
