@@ -92,7 +92,7 @@ import { ref, onMounted } from 'vue'
 const loading = ref(true)
 const tickets = ref([])
 const selectedTicket = ref(null)
-const API_BASE = 'https://ticket-management-system-aw70.onrender.com'
+const API_BASE = 'https://ticketing-backend-1-mylx.onrender.com'
 
 
 /* ---------------- HELPERS ---------------- */

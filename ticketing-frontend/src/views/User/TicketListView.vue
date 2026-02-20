@@ -118,7 +118,7 @@ const searchQuery = ref('')
 const currentFilter = ref('open')
 const currentPage = ref(1)
 const itemsPerPage = 5
-const API_BASE = 'https://ticket-management-system-aw70.onrender.com'
+const API_BASE = 'https://ticketing-backend-1-mylx.onrender.com'
 
 
 const stats = ref({

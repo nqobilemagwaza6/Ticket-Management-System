@@ -38,7 +38,7 @@ import { showInfo, showError } from '@/utils/alerts'
 
 const email = ref('')
 const submitting = ref(false)
-const API_BASE = 'https://ticket-management-system-aw70.onrender.com'
+const API_BASE = 'https://ticketing-backend-1-mylx.onrender.com'
 
 
 async function onSubmit() {

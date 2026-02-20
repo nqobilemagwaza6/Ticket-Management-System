@@ -339,7 +339,7 @@ const selectedTickets = ref([])
 const selectAll = ref(false)
 const currentTicket = ref(null)
 const selectedAgentId = ref('')
-const API_BASE = 'https://ticket-management-system-aw70.onrender.com'
+const API_BASE = 'https://ticketing-backend-1-mylx.onrender.com'
 
 
 // Modals

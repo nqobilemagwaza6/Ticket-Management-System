@@ -94,7 +94,7 @@ const stats = ref({
 })
 
 const recentTickets = ref([])
-const API_BASE = 'https://ticket-management-system-aw70.onrender.com'
+const API_BASE = 'https://ticketing-backend-1-mylx.onrender.com'
 
 
 const statsArray = computed(() => [
