@@ -30,7 +30,7 @@
             </div>
             <div class="col-md-6">
               <div class="meta-item">
-                <strong>Assigned Agent:</strong> {{ ticket.assigned_to || 'Unassigned' }}
+                <strong>Assigned Agent:</strong> {{ ticket.agent || 'Unassigned' }}
               </div>
               <div class="meta-item">
                 <strong>Created:</strong> {{ formatDate(ticket.created_at) }}

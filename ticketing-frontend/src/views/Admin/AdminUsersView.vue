@@ -320,26 +320,61 @@ function showAddUserModal() {
 async function saveUser() {
   try {
     const token = localStorage.getItem('token')
+
+    // Show SweetAlert immediately (non-blocking)
+    const swalPromise = Swal.fire({
+      title: 'Creating user...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    })
+
+    // Send POST request
     const res = await fetch('http://127.0.0.1:8000/api/admin_create_user/', {
       method: 'POST',
       headers: {
-        'Content-Type':'application/json',
+        'Content-Type': 'application/json',
         'Authorization': `Token ${token}`
       },
       body: JSON.stringify(userForm.value)
     })
-    const data = await res.json()
+
+    // Close loading alert immediately
+    Swal.close()
+
+    // Show success/fail alert without waiting for JSON parsing
     if (res.ok) {
-      await fetchUsers()
       userModal.hide()
-      Swal.fire({ icon:'success', title:'User Created', text:`${userForm.value.first_name} was created!`, timer:2000, showConfirmButton:false })
+      Swal.fire({
+        icon: 'success',
+        title: 'User Created',
+        text: `${userForm.value.first_name} was created!`,
+        timer: 2000,
+        showConfirmButton: false
+      })
+
+      // parse JSON after showing alert
+      res.json().then(data => fetchUsers().catch(err => console.error(err)))
     } else {
+      // If not OK, parse JSON to show error
+      const data = await res.json()
       console.error(data)
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed to create user',
+        text: data.detail || 'Please check your input'
+      })
     }
-  } catch(e) {
+  } catch (e) {
     console.error(e)
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'An unexpected error occurred.'
+    })
   }
 }
+
+
 
 function changeRole(user) {
   roleUser.value = user

@@ -61,7 +61,7 @@
                 {{ ticket.status }}
               </span>
             </td>
-            <td>{{ ticket.assigned_to || 'Unassigned' }}</td>
+            <td>{{ ticket.agent || 'Unassigned' }}</td>
             <td>{{ formatDate(ticket.created_at) }}</td>
             <td>
               <router-link
