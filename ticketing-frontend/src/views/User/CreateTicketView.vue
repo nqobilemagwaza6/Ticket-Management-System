@@ -90,6 +90,8 @@ const category = ref('')
 const description = ref('')
 const attachment = ref(null)
 const fileName = ref('')
+const API_BASE = 'https://ticketing-backend-1-mylx.onrender.com'
+
 
 function handleFileUpload(event) {
   const file = event.target.files[0]
@@ -107,7 +109,7 @@ async function submitTicket() {
     if (attachment.value) formData.append('attachment', attachment.value);
     const token = localStorage.getItem('token');
     // Send POST request to create a new ticket
-    const res = await fetch('http://127.0.0.1:8000/api/create_ticket/', {
+    const res = await fetch(`${API_BASE}/api/create_ticket/`, {
       method: 'POST',
       headers: {
         'Authorization': `Token ${token}` // Use the token for authentication

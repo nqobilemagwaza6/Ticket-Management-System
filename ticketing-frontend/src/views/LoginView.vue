@@ -69,6 +69,8 @@ const router = useRouter()
 const email = ref('')
 const password = ref('')
 const submitting = ref(false)
+const API_BASE = 'https://ticketing-backend-1-mylx.onrender.com'
+
 
 async function loginUser() {
    // Frontend validation
@@ -80,7 +82,7 @@ async function loginUser() {
   submitting.value = true
 
   try {// Send login request to backend
-    const response = await fetch('http://127.0.0.1:8000/api/login/', {
+    const response = await fetch(`${API_BASE}/api/login/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',

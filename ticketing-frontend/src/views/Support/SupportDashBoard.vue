@@ -96,6 +96,8 @@ import TicketStatsCard from '@/components/TicketStatsCard.vue'
 const loading = ref(true)
 const tickets = ref([])
 const selectedTicket = ref(null)
+const API_BASE = 'https://ticketing-backend-1-mylx.onrender.com'
+
 
 /* ---------------- HELPERS ---------------- */
 function ticketCategoryClass(category) {
@@ -130,7 +132,7 @@ async function fetchAssignedTickets() {
   loading.value = true
   try {
     const token = localStorage.getItem('token')
-    const res = await fetch('http://127.0.0.1:8000/api/assigned_tickets/', {
+    const res = await fetch(`${API_BASE}/api/assigned_tickets/`, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Token ${token}`
@@ -152,7 +154,7 @@ async function markResolved(ticket) {
   try {
     const token = localStorage.getItem('token')
 
-    const res = await fetch(`http://127.0.0.1:8000/api/tickets/${ticket.id}/assign/`, {
+    const res = await fetch(`${API_BASE}/api/tickets/${ticket.id}/assign/`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

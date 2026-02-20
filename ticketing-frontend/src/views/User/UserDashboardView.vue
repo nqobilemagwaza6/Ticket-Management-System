@@ -149,6 +149,8 @@ const stats = ref({
 })
 
 const recentTickets = ref([])
+const API_BASE = 'https://ticketing-backend-1-mylx.onrender.com'
+
 
 const searchQuery = ref('')
 const currentFilter = ref('all')
@@ -189,8 +191,8 @@ async function fetchTickets() {
   const url = `http://127.0.0.1:8000/api/tickets/?${params.toString()}`
 
   try {
-    const res = await fetch(url, {
-      method: 'GET',
+    const res = await fetch(`${API_BASE}/api/tickets/`, {
+       method: 'GET',
       credentials: 'include',
       headers: {
         'Authorization': `Token ${token}`

@@ -38,6 +38,8 @@ import { showInfo, showError } from '@/utils/alerts'
 
 const email = ref('')
 const submitting = ref(false)
+const API_BASE = 'https://ticketing-backend-1-mylx.onrender.com'
+
 
 async function onSubmit() {
   // Basic validation 
@@ -49,7 +51,7 @@ async function onSubmit() {
   submitting.value = true
 
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/forgot-password/', {
+    const res = await fetch(`${API_BASE}/api/forgot-password/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email.value.trim() })

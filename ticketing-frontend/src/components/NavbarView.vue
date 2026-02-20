@@ -35,10 +35,11 @@
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const API_BASE = 'https://ticketing-backend-1-mylx.onrender.com'
 
 const logout = async () => {
   try {
-    await fetch('http://127.0.0.1:8000/api/logout/', {
+    await fetch(`${API_BASE}/api/logout/`, {
       method: 'POST',
       credentials: 'include'
     })

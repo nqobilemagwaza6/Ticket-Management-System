@@ -94,6 +94,8 @@ const password = ref('')
 const confirmPassword = ref('')
 const router = useRouter()
 const submitting = ref(false)
+const API_BASE = 'https://ticketing-backend-1-mylx.onrender.com'
+
 
 // Password rules
 const hasMinLength = computed(() => password.value.length >= 8)
@@ -128,7 +130,7 @@ async function registerUser() {
   submitting.value = true
 // Send registration request to backend
   try {
-    const response = await fetch('http://127.0.0.1:8000/api/register/', {
+    const response = await fetch(`${API_BASE}/api/register/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

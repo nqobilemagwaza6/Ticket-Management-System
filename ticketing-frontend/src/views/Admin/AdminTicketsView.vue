@@ -339,6 +339,8 @@ const selectedTickets = ref([])
 const selectAll = ref(false)
 const currentTicket = ref(null)
 const selectedAgentId = ref('')
+const API_BASE = 'https://ticketing-backend-1-mylx.onrender.com'
+
 
 // Modals
 let assignModal = null
@@ -440,7 +442,7 @@ async function confirmEdit() {
 
   try {
     const res = await fetch(
-      `http://127.0.0.1:8000/api/tickets/${editTicketData.value.id}/`,
+      `${API_BASE}/api/tickets/${editTicketData.value.id}/`,
       {
         method: 'PATCH',
         headers: {
@@ -470,7 +472,7 @@ async function confirmAssign(){
   if(!currentTicket.value || !selectedAgentId.value) return
   try{
     const token = localStorage.getItem('token')
-    const res = await fetch(`http://127.0.0.1:8000/api/tickets/${currentTicket.value.id}/assign/`, {
+    const res = await fetch(`${API_BASE}/api/tickets/${currentTicket.value.id}/assign/`, {
       method:'PATCH',
       headers:{'Authorization':`Token ${token}`,'Content-Type':'application/json'},
       body:JSON.stringify({ assigned_to: Number(selectedAgentId.value) })
@@ -502,7 +504,7 @@ function changePage(page){ pagination.value.page=page }
 async function loadTickets(){
   try{
     const token=localStorage.getItem('token')
-    const res=await fetch('http://127.0.0.1:8000/api/tickets/',{
+    const res=await fetch(`${API_BASE}/api/tickets/`,{
       method:'GET',
       headers:{'Authorization':`Token ${token}`,'Content-Type':'application/json'}
     })
@@ -524,7 +526,7 @@ async function loadTickets(){
 async function loadAgents() {
   try {
     const token = localStorage.getItem('token');
-    const res = await fetch('http://127.0.0.1:8000/api/users_list/', {
+    const res = await fetch(`${API_BASE}/api/users_list/`, {
       headers: { 'Authorization': `Token ${token}`, 'Content-Type': 'application/json' },
     });
     if (!res.ok) throw new Error('Agents fetch failed');

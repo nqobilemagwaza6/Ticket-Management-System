@@ -104,6 +104,8 @@ import { ref, onMounted } from 'vue'
 const loading = ref(true)
 const tickets = ref([])
 const selectedTicket = ref(null)
+const API_BASE = 'https://ticketing-backend-1-mylx.onrender.com'
+
 
 // Fetch all tickets from API (replace with actual endpoint)
 const fetchTickets = async () => {
@@ -112,7 +114,7 @@ const fetchTickets = async () => {
 
     const token = localStorage.getItem('token')
 
-    const response = await fetch('http://127.0.0.1:8000/api/tickets/', {
+    const response = await fetch(`${API_BASE}/api/tickets/`, {
       headers: {
         'Authorization': `Token ${token}`,
         'Content-Type': 'application/json'
@@ -180,7 +182,7 @@ async function markResolved(ticket) {
   try {
     const token = localStorage.getItem('token')
 
-    const res = await fetch(`http://127.0.0.1:8000/api/tickets/${ticket.id}/assign/`, {
+    const res = await fetch(`${API_BASE}/api/tickets/${ticket.id}/assign/`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

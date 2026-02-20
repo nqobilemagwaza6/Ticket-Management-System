@@ -72,6 +72,8 @@ import { showSuccess, showError } from '@/utils/alerts'
 
 const router = useRouter()
 const route = useRoute()
+const API_BASE = 'https://ticketing-backend-1-mylx.onrender.com'
+
 
 
 // Form state
@@ -109,7 +111,7 @@ const handleReset = async () => {
   // Set submitting state to disable button and show spinner
 submitting.value = true
   try {
-    const response = await fetch('http://127.0.0.1:8000/api/reset-password/', {
+    const response = await fetch(`${API_BASE}/api/reset-password/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ uid, token, new_password: newPassword.value })

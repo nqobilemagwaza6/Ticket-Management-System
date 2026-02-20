@@ -118,6 +118,8 @@ const searchQuery = ref('')
 const currentFilter = ref('open')
 const currentPage = ref(1)
 const itemsPerPage = 5
+const API_BASE = 'https://ticketing-backend-1-mylx.onrender.com'
+
 
 const stats = ref({
   total: 0,
@@ -188,7 +190,7 @@ function formatDate(dateStr) {
 
 async function fetchTickets() {
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/tickets/', {
+    const res = await fetch(`${API_BASE}/api/tickets/`, {
       credentials: 'include'
     })
     if (!res.ok) throw new Error('Failed to fetch tickets')
