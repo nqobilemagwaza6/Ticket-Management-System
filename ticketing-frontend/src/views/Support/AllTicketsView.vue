@@ -87,7 +87,7 @@
             </ul>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-success" @click="markResolved">Mark as Resolved</button>
+            <button class="btn btn-success" @click="markResolved(selectedTicket)">Mark as Resolved</button>
             <button class="btn btn-primary" @click="addComment">Add Comment</button>
             <button class="btn btn-secondary" @click="closeModal">Close</button>
           </div>
@@ -176,12 +176,38 @@ function statusBadgeClass(status) {
 function formatDateTime(d) {
   return new Date(d).toLocaleString()
 }
-function markResolved() {
-  alert('Ticket marked resolved (API call would go here)')
-  // In a real app, you'd call an API to update the ticket status,
-  // then refresh the list or update locally.
-  closeModal()
+async function markResolved(ticket) {
+  try {
+    const token = localStorage.getItem('token')
+
+    const res = await fetch(`http://127.0.0.1:8000/api/tickets/${ticket.id}/assign/`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify({ status: 'Resolved' })
+    })
+
+    if (!res.ok) throw new Error('Failed to update ticket')
+    const updated = await res.json()
+
+    // Update the ticket locally so UI updates immediately
+    const index = tickets.value.findIndex(t => t.id === ticket.id)
+    if (index !== -1) tickets.value[index] = updated
+
+    // Also update the modal if it’s open
+    if (selectedTicket.value?.id === ticket.id) {
+      selectedTicket.value = updated
+    }
+
+  } catch (err) {
+    console.error(err)
+    alert('Failed to mark ticket as resolved')
+  }
 }
+
+
 function addComment() {
   const comment = prompt('Add your comment:')
   if (comment) {
