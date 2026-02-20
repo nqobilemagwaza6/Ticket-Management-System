@@ -112,7 +112,7 @@ const fetchTickets = async () => {
 
     const token = localStorage.getItem('token')
 
-    const response = await fetch('http://127.0.0.1:8000/api/tickets/', {
+    const response = await fetch('${API_BASE}/api/tickets/', {
       headers: {
         'Authorization': `Token ${token}`,
         'Content-Type': 'application/json'
@@ -180,7 +180,7 @@ async function markResolved(ticket) {
   try {
     const token = localStorage.getItem('token')
 
-    const res = await fetch(`http://127.0.0.1:8000/api/tickets/${ticket.id}/assign/`, {
+    const res = await fetch(`${API_BASE}/api/tickets/${ticket.id}/assign/`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

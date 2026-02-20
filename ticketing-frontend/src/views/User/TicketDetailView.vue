@@ -129,7 +129,7 @@ async function submitComment() {
   const token = localStorage.getItem('token')
 
   const res = await fetch(
-    `http://127.0.0.1:8000/api/tickets/${route.params.id}/comments/`,
+    `${API_BASE}/api/tickets/${route.params.id}/comments/`,
     {
       method: 'POST',
       headers: {
@@ -156,7 +156,7 @@ async function fetchComments() {
   const token = localStorage.getItem('token')
 
   const res = await fetch(
-    `http://127.0.0.1:8000/api/tickets/${route.params.id}/comments/`,
+    `${API_BASE}/api/tickets/${route.params.id}/comments/`,
     {
       headers: {
         'Authorization': `Token ${token}`
@@ -180,7 +180,7 @@ async function fetchTicket() {
       return;
     }
 
-    const res = await fetch(`http://127.0.0.1:8000/api/tickets/${route.params.id}/`, {
+    const res = await fetch(`${API_BASE}/api/tickets/${route.params.id}/`, {
       headers: {
         'Authorization': `Token ${token}`,
         'Content-Type': 'application/json'

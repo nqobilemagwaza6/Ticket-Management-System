@@ -329,7 +329,7 @@ async function saveUser() {
     })
 
     // Send POST request
-    const res = await fetch('http://127.0.0.1:8000/api/admin_create_user/', {
+    const res = await fetch('${API_BASE}/api/admin_create_user/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -396,7 +396,7 @@ async function updateUser() {
     const token = localStorage.getItem('token')
 
     const res = await fetch(
-      `http://127.0.0.1:8000/api/admin_update_user/${editForm.value.id}/`,
+      `${API_BASE}/api/admin_update_user/${editForm.value.id}/`,
       {
         method: 'POST',
         headers: {
@@ -429,7 +429,7 @@ async function updateUser() {
 async function deactivateUser(user) {
   try {
     const token = localStorage.getItem('token')
-    const res = await fetch(`http://127.0.0.1:8000/api/deactivate_user/${user.id}/`, {
+    const res = await fetch(`${API_BASE}/api/deactivate_user/${user.id}/`, {
       method: 'POST',  // use POST
       headers: { 'Authorization': `Token ${token}` }
     })
@@ -497,7 +497,7 @@ function resetFilters() {
 async function fetchUsers() {
   try {
     const token = localStorage.getItem('token')
-    const res = await fetch('http://127.0.0.1:8000/api/users_list/', {
+    const res = await fetch('${API_BASE}/api/users_list/', {
       headers: { 'Authorization': `Token ${token}` }
     })
     const data = await res.json()
