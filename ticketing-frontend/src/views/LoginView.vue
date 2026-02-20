@@ -69,6 +69,8 @@ const router = useRouter()
 const email = ref('')
 const password = ref('')
 const submitting = ref(false)
+const API_BASE = 'https://ticket-management-system-aw70.onrender.com'
+
 
 async function loginUser() {
    // Frontend validation

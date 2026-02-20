@@ -90,6 +90,8 @@ const category = ref('')
 const description = ref('')
 const attachment = ref(null)
 const fileName = ref('')
+const API_BASE = 'https://ticket-management-system-aw70.onrender.com'
+
 
 function handleFileUpload(event) {
   const file = event.target.files[0]

@@ -96,6 +96,8 @@ import TicketStatsCard from '@/components/TicketStatsCard.vue'
 const loading = ref(true)
 const tickets = ref([])
 const selectedTicket = ref(null)
+const API_BASE = 'https://ticket-management-system-aw70.onrender.com'
+
 
 /* ---------------- HELPERS ---------------- */
 function ticketCategoryClass(category) {

@@ -72,6 +72,8 @@ import { showSuccess, showError } from '@/utils/alerts'
 
 const router = useRouter()
 const route = useRoute()
+const API_BASE = 'https://ticket-management-system-aw70.onrender.com'
+
 
 
 // Form state

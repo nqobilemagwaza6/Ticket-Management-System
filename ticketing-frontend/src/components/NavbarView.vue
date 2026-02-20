@@ -35,6 +35,7 @@
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const API_BASE = 'https://ticket-management-system-aw70.onrender.com'
 
 const logout = async () => {
   try {

@@ -94,6 +94,8 @@ const password = ref('')
 const confirmPassword = ref('')
 const router = useRouter()
 const submitting = ref(false)
+const API_BASE = 'https://ticket-management-system-aw70.onrender.com'
+
 
 // Password rules
 const hasMinLength = computed(() => password.value.length >= 8)

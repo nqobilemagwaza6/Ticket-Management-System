@@ -104,6 +104,8 @@ import { ref, onMounted } from 'vue'
 const loading = ref(true)
 const tickets = ref([])
 const selectedTicket = ref(null)
+const API_BASE = 'https://ticket-management-system-aw70.onrender.com'
+
 
 // Fetch all tickets from API (replace with actual endpoint)
 const fetchTickets = async () => {

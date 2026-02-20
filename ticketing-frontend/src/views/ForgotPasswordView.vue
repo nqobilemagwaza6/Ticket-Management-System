@@ -38,6 +38,8 @@ import { showInfo, showError } from '@/utils/alerts'
 
 const email = ref('')
 const submitting = ref(false)
+const API_BASE = 'https://ticket-management-system-aw70.onrender.com'
+
 
 async function onSubmit() {
   // Basic validation 

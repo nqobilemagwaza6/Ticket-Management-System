@@ -242,6 +242,8 @@ const selectedUsers = ref([])
 const selectAll = ref(false)
 const roleUser = ref(null)
 const newRole = ref('')
+const API_BASE = 'https://ticket-management-system-aw70.onrender.com'
+
 
 // Form state
 const userForm = ref({

@@ -97,6 +97,8 @@ const route = useRoute()
 const ticket = ref({})
 const comments = ref([])
 const newComment = ref('')
+const API_BASE = 'https://ticket-management-system-aw70.onrender.com'
+
 
 function getStatusClass(status) {
   switch(status) {
