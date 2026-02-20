@@ -81,6 +81,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import Swal from 'sweetalert2'
 
 const router = useRouter()
 
@@ -98,8 +99,6 @@ function handleFileUpload(event) {
 
 async function submitTicket() {
   try {
-
-
     // Prepare the form data to send in the POST request
     const formData = new FormData();
     formData.append('title', title.value);
@@ -119,7 +118,12 @@ async function submitTicket() {
     // Handle response
     if (res.ok) {
       const data = await res.json();
-      alert('Ticket created successfully');
+      await Swal.fire({
+        icon: 'success',
+        title: 'Ticket Created',
+        text: 'Your ticket has been successfully created!',
+        confirmButtonColor: '#3085d6'
+      })
       router.push({ name: 'EmployeeDashboard' }); // Redirect to the dashboard
     } else {
       const data = await res.json();

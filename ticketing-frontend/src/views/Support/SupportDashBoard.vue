@@ -47,13 +47,13 @@
           <div class="modal-body">
             <ul class="list-group list-group-flush">
               <li class="list-group-item">
-                <strong>Ticket #:</strong> {{ selectedTicket.number }}
+                <strong>Ticket #:</strong> {{ selectedTicket.id }}
               </li>
               <li class="list-group-item">
-                <strong>Submitted by:</strong> {{ selectedTicket.submittedBy }}
+                <strong>Submitted by:</strong> {{ selectedTicket.user }}
               </li>
               <li class="list-group-item">
-                <strong>Created:</strong> {{ formatDateTime(selectedTicket.createdAt) }}
+                <strong>Created:</strong> {{ formatDateTime(selectedTicket.created_at) }}
               </li>
               <li class="list-group-item">
                 <strong>Category:</strong>
@@ -62,10 +62,10 @@
                 </span>
               </li>
               <li class="list-group-item">
-                <strong>Assigned to:</strong> {{ selectedTicket.assignedTo }}
+                <strong>Assigned to:</strong> {{ selectedTicket.agent || selectedTicket.assigned_to }}
               </li>
               <li class="list-group-item">
-                <strong>Last Updated:</strong> {{ formatDateTime(selectedTicket.lastUpdated) }}
+                <strong>Last Updated:</strong> {{ formatDateTime(selectedTicket.updated_at) }}
               </li>
               <li class="list-group-item">
                 <strong>Description:</strong>
@@ -75,8 +75,8 @@
           </div>
 
           <div class="modal-footer">
-            <button class="btn btn-success" @click="markResolved">Mark as Resolved</button>
-            <button class="btn btn-primary" @click="addComment">Add Comment</button>
+            <button class="btn btn-success" @click="markResolved(selectedTicket)">Mark as Resolved</button>
+            <button class="btn btn-primary" @click="addComment(selectedTicket)">Add Comment</button>
             <button class="btn btn-secondary" @click="closeModal">Close</button>
           </div>
         </div>
@@ -95,27 +95,9 @@ import TicketStatsCard from '@/components/TicketStatsCard.vue'
 /* ---------------- STATE ---------------- */
 const loading = ref(true)
 const tickets = ref([])
-const userName = ref('Agent')
 const selectedTicket = ref(null)
 
-/* ---------------- FUNCTIONS ---------------- */
-function openTicket(ticket) {
-  selectedTicket.value = {
-    number: ticket.id,
-    submittedBy: ticket.title,
-    category: ticket.category,
-    status: ticket.status,
-    assignedTo: ticket.assigned_to,
-    createdAt: ticket.created_at,
-    lastUpdated: ticket.created_at,
-    description: ticket.title
-  }
-}
-
-function closeModal() {
-  selectedTicket.value = null
-}
-
+/* ---------------- HELPERS ---------------- */
 function ticketCategoryClass(category) {
   switch ((category || '').toLowerCase()) {
     case 'software': return 'bg-primary text-white'
@@ -125,26 +107,77 @@ function ticketCategoryClass(category) {
   }
 }
 
-function markResolved() {
-  alert('Ticket marked as resolved (API call would go here)')
-  closeModal()
-}
-
-function addComment() {
-  const comment = prompt('Add your comment:')
-  if (comment) console.log('Comment added:', comment)
-}
-
 function formatDateTime(dateStr) {
   return new Date(dateStr).toLocaleString()
 }
 
-/* ---------------- DUMMY DATA ---------------- */
-tickets.value = [
-  { id: 1, title: 'App logs out every time I try to use it', category: 'Software', status: 'In Progress', assigned_to: 'Agent Smith', created_at: '2026-02-16T10:18:00' },
-  { id: 2, title: 'Monitor flickering when powered on', category: 'Hardware', status: 'Open', assigned_to: 'Agent Smith', created_at: '2026-02-16T09:30:00' },
-  { id: 3, title: 'Cannot connect to VPN', category: 'Network', status: 'Resolved', assigned_to: 'Agent Smith', created_at: '2026-02-15T14:20:00' }
-]
+/* ---------------- MODAL HANDLERS ---------------- */
+function openTicket(ticket) {
+  selectedTicket.value = { ...ticket }
+}
+
+function closeModal() {
+  selectedTicket.value = null
+}
+
+function addComment(ticket) {
+  const comment = prompt('Add your comment:')
+  if (comment) console.log('Comment added for ticket', ticket.id, comment)
+}
+
+/* ---------------- FETCH ASSIGNED TICKETS ---------------- */
+async function fetchAssignedTickets() {
+  loading.value = true
+  try {
+    const token = localStorage.getItem('token')
+    const res = await fetch('http://127.0.0.1:8000/api/assigned_tickets/', {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      }
+    })
+    if (!res.ok) throw new Error('Failed to fetch tickets')
+    const data = await res.json()
+    tickets.value = data
+  } catch (err) {
+    console.error(err)
+    tickets.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+/* ---------------- MARK RESOLVED ---------------- */
+async function markResolved(ticket) {
+  try {
+    const token = localStorage.getItem('token')
+
+    const res = await fetch(`http://127.0.0.1:8000/api/tickets/${ticket.id}/assign/`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify({ status: 'Resolved' })
+    })
+
+    if (!res.ok) throw new Error('Failed to update ticket')
+    const updated = await res.json()
+
+    // Update the ticket locally so UI updates immediately
+    const index = tickets.value.findIndex(t => t.id === ticket.id)
+    if (index !== -1) tickets.value[index] = updated
+
+    // Also update the modal if it’s open
+    if (selectedTicket.value?.id === ticket.id) {
+      selectedTicket.value = updated
+    }
+
+  } catch (err) {
+    console.error(err)
+    alert('Failed to mark ticket as resolved')
+  }
+}
 
 /* ---------------- COMPUTED ---------------- */
 const assignedTickets = computed(() => tickets.value)
@@ -160,11 +193,7 @@ const stats = computed(() => {
 })
 
 /* ---------------- LIFECYCLE ---------------- */
-onMounted(() => {
-  setTimeout(() => { loading.value = false }, 300)
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
-  userName.value = user.name || 'Agent'
-})
+onMounted(fetchAssignedTickets)
 </script>
 
 <style scoped>

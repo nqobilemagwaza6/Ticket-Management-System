@@ -26,7 +26,7 @@
           style="cursor: pointer"
         >
           <div class="mb-2 mb-sm-0">
-            <strong>#{{ ticket.number }}</strong> – {{ ticket.submittedBy }}
+            <strong>#{{ ticket.id }}</strong> – {{ ticket.title }}
             <span class="d-block d-sm-inline text-muted small ms-sm-2">
               {{ ticket.category }}
             </span>
@@ -43,7 +43,7 @@
       </ul>
     </div>
 
-    <!-- Ticket Detail Modal (reuse same modal as dashboard) -->
+    <!-- Ticket Detail Modal -->
     <div
       class="modal fade show"
       tabindex="-1"
@@ -59,27 +59,17 @@
           </div>
           <div class="modal-body">
             <ul class="list-group list-group-flush">
-              <li class="list-group-item">
-                <strong>Ticket #:</strong> {{ selectedTicket.number }}
-              </li>
-              <li class="list-group-item">
-                <strong>Submitted by:</strong> {{ selectedTicket.submittedBy }}
-              </li>
-              <li class="list-group-item">
-                <strong>Created:</strong> {{ formatDateTime(selectedTicket.createdAt) }}
-              </li>
+              <li class="list-group-item"><strong>Ticket #:</strong> {{ selectedTicket.id }}</li>
+              <li class="list-group-item"><strong>Submitted by:</strong> {{ selectedTicket.user }}</li>
+              <li class="list-group-item"><strong>Created:</strong> {{ formatDateTime(selectedTicket.created_at) }}</li>
               <li class="list-group-item">
                 <strong>Category:</strong>
                 <span class="badge" :class="ticketCategoryClass(selectedTicket.category)">
                   {{ selectedTicket.category }}
                 </span>
               </li>
-              <li class="list-group-item">
-                <strong>Assigned to:</strong> {{ selectedTicket.assignedTo }}
-              </li>
-              <li class="list-group-item">
-                <strong>Last Updated:</strong> {{ formatDateTime(selectedTicket.lastUpdated) }}
-              </li>
+              <li class="list-group-item"><strong>Assigned to:</strong> {{ selectedTicket.agent || selectedTicket.assigned_to }}</li>
+              <li class="list-group-item"><strong>Last Updated:</strong> {{ formatDateTime(selectedTicket.updated_at) }}</li>
               <li class="list-group-item">
                 <strong>Description:</strong>
                 <p class="mb-0">{{ selectedTicket.description }}</p>
@@ -87,8 +77,6 @@
             </ul>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-success" @click="markResolved">Mark as Resolved</button>
-            <button class="btn btn-primary" @click="addComment">Add Comment</button>
             <button class="btn btn-secondary" @click="closeModal">Close</button>
           </div>
         </div>
@@ -105,67 +93,7 @@ const loading = ref(true)
 const tickets = ref([])
 const selectedTicket = ref(null)
 
-// Fetch assigned tickets from API (replace with actual endpoint)
-const fetchTickets = async () => {
-  try {
-    // Simulate API call
-    // const response = await fetch('/api/support/tickets/assigned/')
-    // tickets.value = await response.json()
-    
-    // Dummy data for now
-    tickets.value = [
-      {
-        id: 1,
-        number: 'TT1125845',
-        submittedBy: 'John Doe',
-        createdAt: '2026-02-16T10:18:00',
-        category: 'Software',
-        assignedTo: 'Agent Smith',
-        lastUpdated: '2026-02-16T11:01:00',
-        description: 'App logs out every time I try to use it',
-        status: 'In Progress'
-      },
-      {
-        id: 2,
-        number: 'TT1125846',
-        submittedBy: 'Jane Roe',
-        createdAt: '2026-02-16T09:30:00',
-        category: 'Hardware',
-        assignedTo: 'Agent Smith',
-        lastUpdated: '2026-02-16T10:45:00',
-        description: 'Monitor flickering when powered on',
-        status: 'Open'
-      },
-      {
-        id: 3,
-        number: 'TT1125847',
-        submittedBy: 'Alice Lee',
-        createdAt: '2026-02-15T14:20:00',
-        category: 'Network',
-        assignedTo: 'Agent Smith',
-        lastUpdated: '2026-02-16T08:15:00',
-        description: 'Cannot connect to VPN',
-        status: 'Resolved'
-      }
-    ]
-  } catch (error) {
-    console.error('Failed to fetch tickets:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(fetchTickets)
-
-// Modal handlers
-function selectTicket(ticket) {
-  selectedTicket.value = { ...ticket }
-}
-function closeModal() {
-  selectedTicket.value = null
-}
-
-// Helper functions (reuse from dashboard)
+/* ---------------- HELPERS ---------------- */
 function ticketCategoryClass(category) {
   switch (category.toLowerCase()) {
     case 'software': return 'bg-primary text-white'
@@ -185,14 +113,39 @@ function statusBadgeClass(status) {
 function formatDateTime(d) {
   return new Date(d).toLocaleString()
 }
-function markResolved() {
-  alert('Ticket marked resolved (API call would go here)')
-  closeModal()
+function selectTicket(ticket) {
+  selectedTicket.value = { ...ticket }
 }
-function addComment() {
-  const comment = prompt('Add your comment:')
-  if (comment) console.log('Comment added:', comment)
+function closeModal() {
+  selectedTicket.value = null
 }
+
+/* ---------------- FETCH TICKETS ---------------- */
+const fetchTickets = async () => {
+  loading.value = true
+  try {
+    const token = localStorage.getItem('token')  // make sure your auth token is stored here
+    const res = await fetch('http://127.0.0.1:8000/api/assigned_tickets/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      }
+    })
+    if (!res.ok) throw new Error('Failed to fetch tickets')
+    const data = await res.json()
+    tickets.value = data
+    console.log('Assigned tickets:', data)
+  } catch (err) {
+    console.error(err)
+    tickets.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+/* ---------------- LIFECYCLE ---------------- */
+onMounted(fetchTickets)
 </script>
 
 <style scoped>

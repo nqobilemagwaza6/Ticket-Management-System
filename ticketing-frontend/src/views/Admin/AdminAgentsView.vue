@@ -10,9 +10,6 @@
         <button class="btn btn-outline-primary" @click="exportAgentReport">
           <i class="bi bi-download me-2"></i>Export Report
         </button>
-        <button class="btn btn-primary" @click="showAddAgentModal">
-          <i class="bi bi-plus-circle me-2"></i>Add Agent
-        </button>
       </div>
     </div>
 
@@ -68,7 +65,6 @@
                 <th>Resolution Rate</th>
                 <th>Avg Response Time</th>
                 <th>Performance</th>
-                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -99,19 +95,6 @@
                     </div>
                     <span class="small">{{ agent.performance }}%</span>
                   </div>
-                </td>
-                <td data-label="Actions">
-                  <div class="btn-group">
-                    <button class="btn btn-sm btn-outline-primary" @click="editAgent(agent)">
-                      <i class="bi bi-pencil"></i>
-                    </button>
-                      <button class="btn btn-sm btn-outline-info" @click="viewAgentTickets(agent)">
-                        <i class="bi bi-ticket"></i>
-                      </button>
-                      <button :class="['btn','btn-sm', agent.active ? 'btn-success' : 'btn-danger', 'text-white']" @click="toggleAgentStatus(agent)">
-                        <i :class="agent.active ? 'bi bi-check-circle' : 'bi bi-x-circle'"></i>
-                      </button>
-                  </div> 
                 </td>
               </tr>
             </tbody>
