@@ -99,7 +99,6 @@ const getAvatarColor = computed(() => {
 const links = [
   // Employee / User
   { name: 'EmployeeDashboard', label: 'Dashboard', role: 'user', icon: 'bi bi-speedometer2', path: '/employee/dashboard' },
-  { name: 'TicketList', label: 'My Tickets', role: 'user', icon: 'bi bi-ticket', path: '/employee/tickets' },
   { name: 'CreateTicket', label: 'Create Ticket', role: 'user', icon: 'bi bi-plus-circle', path: '/employee/create-ticket' },
 
   // Admin
