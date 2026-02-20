@@ -188,7 +188,7 @@ async function fetchTickets() {
     params.append('search', searchQuery.value.trim())
   }
 
-  const url = `http://127.0.0.1:8000/api/tickets/?${params.toString()}`
+  const url = `${API_BASE}/tickets/?${params.toString()}`
 
   try {
     const res = await fetch(`${API_BASE}/api/tickets/`, {
