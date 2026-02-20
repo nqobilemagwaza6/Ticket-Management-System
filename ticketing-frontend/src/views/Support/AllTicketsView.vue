@@ -87,7 +87,7 @@
             </ul>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-success" @click="markResolved">Mark as Resolved</button>
+            <button class="btn btn-success" @click="markResolved(selectedTicket)">Mark as Resolved</button>
             <button class="btn btn-primary" @click="addComment">Add Comment</button>
             <button class="btn btn-secondary" @click="closeModal">Close</button>
           </div>
@@ -108,63 +108,43 @@ const selectedTicket = ref(null)
 // Fetch all tickets from API (replace with actual endpoint)
 const fetchTickets = async () => {
   try {
-    // Replace with your actual API endpoint for all tickets
-    // const response = await fetch('/api/support/tickets/all/')
-    // tickets.value = await response.json()
-    
-    // Dummy data for now
-    tickets.value = [
-      {
-        id: 1,
-        number: 'TT1125845',
-        submittedBy: 'John Doe',
-        createdAt: '2026-02-16T10:18:00',
-        category: 'Software',
-        assignedTo: 'Agent Smith',
-        lastUpdated: '2026-02-16T11:01:00',
-        description: 'App logs out every time I try to use it',
-        status: 'In Progress'
-      },
-      {
-        id: 2,
-        number: 'TT1125846',
-        submittedBy: 'Jane Roe',
-        createdAt: '2026-02-16T09:30:00',
-        category: 'Hardware',
-        assignedTo: 'Agent Smith',
-        lastUpdated: '2026-02-16T10:45:00',
-        description: 'Monitor flickering when powered on',
-        status: 'Open'
-      },
-      {
-        id: 3,
-        number: 'TT1125847',
-        submittedBy: 'Alice Lee',
-        createdAt: '2026-02-15T14:20:00',
-        category: 'Network',
-        assignedTo: 'Agent Smith',
-        lastUpdated: '2026-02-16T08:15:00',
-        description: 'Cannot connect to VPN',
-        status: 'Resolved'
-      },
-      {
-        id: 4,
-        number: 'TT1125848',
-        submittedBy: 'Bob Johnson',
-        createdAt: '2026-02-15T09:10:00',
-        category: 'Software',
-        assignedTo: 'Agent Jones',
-        lastUpdated: '2026-02-16T09:30:00',
-        description: 'Application crashes on startup',
-        status: 'Open'
+    loading.value = true
+
+    const token = localStorage.getItem('token')
+
+    const response = await fetch('http://127.0.0.1:8000/api/tickets/', {
+      headers: {
+        'Authorization': `Token ${token}`,
+        'Content-Type': 'application/json'
       }
-    ]
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch tickets')
+    }
+
+    const data = await response.json()
+
+    // Map backend fields to your frontend structure
+    tickets.value = data.map(t => ({
+      id: t.id,
+      number: t.ticket_number || `TT${t.id}`,  // adjust if needed
+      submittedBy: t.user,                     // comes from serializer
+      createdAt: t.created_at,
+      category: t.category,
+      assignedTo: t.agent || 'Unassigned',     // serializer agent field
+      lastUpdated: t.updated_at,
+      description: t.description,
+      status: t.status
+    }))
+
   } catch (error) {
     console.error('Failed to fetch tickets:', error)
   } finally {
     loading.value = false
   }
 }
+
 
 onMounted(fetchTickets)
 
@@ -196,12 +176,38 @@ function statusBadgeClass(status) {
 function formatDateTime(d) {
   return new Date(d).toLocaleString()
 }
-function markResolved() {
-  alert('Ticket marked resolved (API call would go here)')
-  // In a real app, you'd call an API to update the ticket status,
-  // then refresh the list or update locally.
-  closeModal()
+async function markResolved(ticket) {
+  try {
+    const token = localStorage.getItem('token')
+
+    const res = await fetch(`http://127.0.0.1:8000/api/tickets/${ticket.id}/assign/`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify({ status: 'Resolved' })
+    })
+
+    if (!res.ok) throw new Error('Failed to update ticket')
+    const updated = await res.json()
+
+    // Update the ticket locally so UI updates immediately
+    const index = tickets.value.findIndex(t => t.id === ticket.id)
+    if (index !== -1) tickets.value[index] = updated
+
+    // Also update the modal if it’s open
+    if (selectedTicket.value?.id === ticket.id) {
+      selectedTicket.value = updated
+    }
+
+  } catch (err) {
+    console.error(err)
+    alert('Failed to mark ticket as resolved')
+  }
 }
+
+
 function addComment() {
   const comment = prompt('Add your comment:')
   if (comment) {

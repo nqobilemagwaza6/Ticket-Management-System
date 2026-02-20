@@ -305,8 +305,8 @@ onMounted(fetchTickets)
 }
 
 .badge-open {
-  background-color: #FEF3C7;
-  color: #92400E;
+  background-color: #080808;
+  color:#EB5E28 ;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 12px;
@@ -314,8 +314,8 @@ onMounted(fetchTickets)
 }
 
 .badge-progress {
-  background-color: #E0F2FE;
-  color: #0369A1;
+  background-color: #080808;
+  color: #EB5E28;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 12px;
@@ -323,8 +323,8 @@ onMounted(fetchTickets)
 }
 
 .badge-resolved {
-  background-color: #DCFCE7;
-  color: #166534;
+  background-color: #080808;
+  color: #EB5E28;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 12px;

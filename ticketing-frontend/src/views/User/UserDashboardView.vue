@@ -61,7 +61,7 @@
                 {{ ticket.status }}
               </span>
             </td>
-            <td>{{ ticket.assigned_to || 'Unassigned' }}</td>
+            <td>{{ ticket.agent || 'Unassigned' }}</td>
             <td>{{ formatDate(ticket.created_at) }}</td>
             <td>
               <router-link
@@ -108,22 +108,26 @@ function formatDate(dateStr) {
 }
 
 async function fetchTickets() {
+    const token = localStorage.getItem('token');
   try {
     const res = await fetch('http://127.0.0.1:8000/api/tickets/', {
-      credentials: 'include'
+       method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Authorization': `Token ${token}` // Use the token for authentication
+      },
     })
 
     if (!res.ok) throw new Error('Failed to fetch tickets')
 
     const data = await res.json()
-    const userTickets = data.filter(t => t.user_id === user.id)
 
-    stats.value.total = userTickets.length
-    stats.value.open = userTickets.filter(t => t.status === 'Open').length
-    stats.value.inProgress = userTickets.filter(t => t.status === 'In Progress').length
-    stats.value.resolved = userTickets.filter(t => t.status === 'Resolved').length
+    stats.value.total = data.length
+    stats.value.open = data.filter(t => t.status === 'Open').length
+    stats.value.inProgress = data.filter(t => t.status === 'In Progress').length
+    stats.value.resolved = data.filter(t => t.status === 'Resolved').length
 
-    recentTickets.value = userTickets.slice(0, 5)
+    recentTickets.value = data.slice(0, 5)
 
   } catch (err) {
     console.error(err)

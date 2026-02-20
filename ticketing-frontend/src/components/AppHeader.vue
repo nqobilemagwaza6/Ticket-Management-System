@@ -7,10 +7,7 @@
     </button>
  
     <!-- Welcome Text -->
-    <h6 class="mb-0 fw-semibold header-welcome">
-      <span class="d-none d-sm-inline">Welcome {{ userNameDisplay }}</span>
-      <span class="d-inline d-sm-none">{{ userShort }}</span>
-    </h6>
+    <h6 class="mb-0 fw-semibold header-welcome">Welcome {{ userNameDisplay }}</h6>
  
     <!-- Logout Icon -->
     <button class="btn btn-sm" @click="logout">
@@ -25,23 +22,12 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
  
 const router = useRouter()
-const userName = ref('User')
 const userNameDisplay = ref('User')
-const userShort = ref('User')
 
 onMounted(() => {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
-  // Prefer explicit admin greeting
-  if (user.role === 'admin') {
-    userName.value = 'Admin'
-    userNameDisplay.value = 'Admin'
-    userShort.value = 'Admin'
-  } else {
-    userName.value = user.full_name || 'User'
-    userNameDisplay.value = user.full_name || 'User'
-    // short form: first name or fallback
-    userShort.value = (user.full_name || 'User').split(' ')[0]
-  }
+  // Use available name fields (prefer full_name)
+  userNameDisplay.value = user.full_name || user.name || user.first_name || 'User'
 })
  
 function logout() {

@@ -71,34 +71,36 @@
             </thead>
             <tbody>
               <tr v-for="user in filteredUsers" :key="user.id">
-                <td>
+                <td data-label="Select">
                   <div class="form-check">
                     <input class="form-check-input" type="checkbox" v-model="selectedUsers" :value="user.id">
                   </div>
                 </td>
-                <td>
+                <td data-label="Name">
                   <div class="d-flex align-items-center">
-                    <div class="avatar-circle me-2" :class="'bg-' + getAvatarColor(user.id)">
+                    <div class="avatar-circle me-2">
                       {{ user.first_name?.charAt(0) || '?' }}
                     </div>
-                    {{ user.first_name || 'N/A' }}
+                    <div>
+                      {{ user.first_name || 'N/A' }}
+                    </div>
                   </div>
                 </td>
-                <td>{{ user.email }}</td>
-                <td>
+                <td data-label="Email">{{ user.email }}</td>
+                <td data-label="Role">
                   <span class="badge" :class="getRoleBadgeClass(user.role)">
                     {{ user.role }}
                   </span>
                 </td>
-                <td>
-                  <span class="badge" :class="user.is_active ? 'bg-success' : 'bg-secondary'">
+                <td data-label="Status">
+                  <span class="badge" :class="user.is_active ? 'bg-success' : 'bg-danger'">
                     {{ user.is_active ? 'Active' : 'Inactive' }}
                   </span>
                 </td>
-                <td>{{ user.last_login ? formatDate(user.last_login) : 'Never' }}</td>
-                <td>{{ user.ticket_count || 0 }}</td>
-                <td>{{ formatDate(user.date_joined) }}</td>
-                <td>
+                <td data-label="Last Active">{{ user.last_login ? formatDate(user.last_login) : 'Never' }}</td>
+                <td data-label="Tickets Created">{{ user.ticket_count || 0 }}</td>
+                <td data-label="Joined Date">{{ formatDate(user.date_joined) }}</td>
+                <td data-label="Actions">
                   <div class="btn-group">
                     <button class="btn btn-sm btn-outline-primary" @click="editUser(user)">
                       <i class="bi bi-pencil"></i>
@@ -106,8 +108,8 @@
                     <button class="btn btn-sm btn-outline-warning" @click="changeRole(user)">
                       <i class="bi bi-shield"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" @click="deactivateUser(user)">
-                      <i class="bi bi-person-dash"></i>
+                    <button :class="['btn','btn-sm', user.is_active ? 'btn-success' : 'btn-danger', 'text-white']" @click="deactivateUser(user)">
+                      <i :class="user.is_active ? 'bi bi-check-circle' : 'bi bi-x-circle'"></i>
                     </button>
 
                   </div>
@@ -318,26 +320,61 @@ function showAddUserModal() {
 async function saveUser() {
   try {
     const token = localStorage.getItem('token')
+
+    // Show SweetAlert immediately (non-blocking)
+    const swalPromise = Swal.fire({
+      title: 'Creating user...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    })
+
+    // Send POST request
     const res = await fetch('http://127.0.0.1:8000/api/admin_create_user/', {
       method: 'POST',
       headers: {
-        'Content-Type':'application/json',
+        'Content-Type': 'application/json',
         'Authorization': `Token ${token}`
       },
       body: JSON.stringify(userForm.value)
     })
-    const data = await res.json()
+
+    // Close loading alert immediately
+    Swal.close()
+
+    // Show success/fail alert without waiting for JSON parsing
     if (res.ok) {
-      await fetchUsers()
       userModal.hide()
-      Swal.fire({ icon:'success', title:'User Created', text:`${userForm.value.first_name} was created!`, timer:2000, showConfirmButton:false })
+      Swal.fire({
+        icon: 'success',
+        title: 'User Created',
+        text: `${userForm.value.first_name} was created!`,
+        timer: 2000,
+        showConfirmButton: false
+      })
+
+      // parse JSON after showing alert
+      res.json().then(data => fetchUsers().catch(err => console.error(err)))
     } else {
+      // If not OK, parse JSON to show error
+      const data = await res.json()
       console.error(data)
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed to create user',
+        text: data.detail || 'Please check your input'
+      })
     }
-  } catch(e) {
+  } catch (e) {
     console.error(e)
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'An unexpected error occurred.'
+    })
   }
 }
+
+
 
 function changeRole(user) {
   roleUser.value = user
@@ -485,7 +522,18 @@ onMounted(() => {
   width: 32px; height: 32px;
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
   color: white; font-weight: 500; text-transform: uppercase;
+  background-color: var(--accent-orange) !important;
+  color: #fff !important;
 }
 .badge { padding: 6px 10px; font-weight:500; }
 .btn-group .btn { padding:0.25rem 0.5rem; }
+/* Responsive stacked rows for users table on small screens */
+@media (max-width: 576px) {
+  .table thead { display: none; }
+  .table, .table tbody, .table tr, .table td { display: block; width: 100%; }
+  .table tr { margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.04); padding: 8px; border-radius: 8px; }
+  .table td { display: flex; justify-content: space-between; padding: 8px 12px; border: none; }
+  .table td::before { content: attr(data-label); font-weight: 600; color: #6b7280; margin-right: 12px; }
+  .avatar-circle { width: 28px; height: 28px; font-size: 14px; }
+}
 </style>
