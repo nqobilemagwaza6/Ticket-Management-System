@@ -290,7 +290,11 @@ function getAvatarColor(id) {
 }
 
 function getRoleBadgeClass(role) {
-  const classes = { 'admin':'bg-danger', 'agent':'bg-info', 'user':'bg-primary' }
+  const classes = {
+    'Admin': 'bg-danger',
+    'Support': 'bg-info',
+    'User': 'bg-primary'
+  }
   return classes[role] || 'bg-secondary'
 }
 
