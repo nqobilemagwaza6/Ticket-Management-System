@@ -318,7 +318,7 @@ function toggleAll() {
 }
 
 function showAddUserModal() {
-  userForm.value = { first_name: '', email: '', role: 'user' }
+  userForm.value = { first_name: '', email: '', role: 'User' }
   userModal.show()
 }
 
